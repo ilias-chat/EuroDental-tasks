@@ -1,0 +1,586 @@
+<div class="tasks-page">
+  <div class="tasks-page__header">
+    <div class="tasks-page__nav" aria-label="Navigation du calendrier">
+      <button type="button" (click)="goPrev()">←</button>
+      <span class="tasks-page__period" [attr.title]="periodLabel()">{{ periodLabel() }}</span>
+      <button type="button" (click)="goNext()">→</button>
+      <button type="button" (click)="goToday()">Aujourd'hui</button>
+    </div>
+    <div class="tasks-page__tabs" role="tablist" aria-label="Vue du calendrier">
+      <button
+        type="button"
+        class="tasks-page__tab"
+        [class.tasks-page__tab--active]="store.viewMode() === 'month'"
+        (click)="store.setViewMode('month')"
+      >
+        Mois
+      </button>
+      <button
+        type="button"
+        class="tasks-page__tab"
+        [class.tasks-page__tab--active]="store.viewMode() === 'week'"
+        (click)="store.setViewMode('week')"
+      >
+        Semaine
+      </button>
+      <button
+        type="button"
+        class="tasks-page__tab"
+        [class.tasks-page__tab--active]="store.viewMode() === 'day'"
+        (click)="store.setViewMode('day')"
+      >
+        Jour
+      </button>
+    </div>
+  </div>
+
+  @if (store.error()) {
+    <div class="tasks-page__error">{{ store.error() }}</div>
+  }
+  @if (store.loading()) {
+    <p class="tasks-page__loading">Chargement…</p>
+  }
+
+  <div class="tasks-page__body">
+    <div class="tasks-page__content">
+      @switch (store.viewMode()) {
+        @case ('month') {
+          <app-tasks-month-view />
+        }
+        @case ('week') {
+          <app-tasks-week-view />
+        }
+        @case ('day') {
+          <app-tasks-day-view />
+        }
+      }
+    </div>
+  </div>
+
+  <div
+    class="tasks-page__filters-backdrop"
+    [class.tasks-page__filters-backdrop--open]="store.filterPanelOpen()"
+    (click)="closeFiltersPanel()"
+    aria-hidden="true"
+  ></div>
+
+  <aside
+    class="tasks-page__filters-panel"
+    [class.tasks-page__filters-panel--open]="store.filterPanelOpen()"
+    aria-label="Filtres des tâches"
+  >
+      <header class="tasks-page__filters-header">
+        <div class="tasks-page__filters-title-row">
+          <h3 class="tasks-page__filters-title">Filtres</h3>
+          <div class="tasks-page__filters-total">
+            <span>Total:</span>
+            <span class="tasks-page__filters-total-value">{{ store.filteredTasksCount() }}</span>
+            <span>{{ store.filteredTasksCount() === 1 ? 'tâche' : 'tâches' }}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="tasks-page__filters-close"
+          (click)="closeFiltersPanel()"
+          title="Fermer les filtres"
+          aria-label="Fermer les filtres"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <div class="tasks-page__filters-content">
+        <div class="tasks-page__filter-group">
+          <label class="tasks-page__filter-label">Technicien</label>
+          <div class="tasks-page__filter-dropdown">
+            <button type="button" class="tasks-page__filter-trigger" (click)="techFilterDropdownOpen.set(!techFilterDropdownOpen())">
+              <span>{{ selectedTechFilterUser()?.name || 'Tous les utilisateurs' }}</span>
+              <svg class="tasks-page__filter-chevron" [class.tasks-page__filter-chevron--open]="techFilterDropdownOpen()" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            @if (techFilterDropdownOpen()) {
+              <div class="tasks-page__filter-menu">
+                <div class="tasks-page__filter-search-wrap">
+                  <input
+                    class="tasks-page__filter-search"
+                    type="text"
+                    placeholder="Rechercher un utilisateur..."
+                    [value]="techFilterSearch()"
+                    (input)="techFilterSearch.set($any($event.target).value)"
+                  />
+                </div>
+                <div class="tasks-page__filter-list">
+                  <button type="button" class="tasks-page__filter-item" (click)="setTechFilter('')">
+                    <span>Tous les utilisateurs</span>
+                  </button>
+                  @for (u of filteredTechnicians(); track u.id) {
+                    <button type="button" class="tasks-page__filter-item" (click)="setTechFilter(u.id)">
+                      <img class="tasks-page__filter-avatar" [src]="u.image || avatarFallback(u.name)" alt="" />
+                      <span>{{ u.name }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="tasks-page__filter-group">
+          <label class="tasks-page__filter-label">Client</label>
+          <div class="tasks-page__filter-dropdown">
+            <button type="button" class="tasks-page__filter-trigger" (click)="clientFilterDropdownOpen.set(!clientFilterDropdownOpen())">
+              <span>{{ selectedClientFilterClient()?.name || 'Tous les clients' }}</span>
+              <svg class="tasks-page__filter-chevron" [class.tasks-page__filter-chevron--open]="clientFilterDropdownOpen()" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            @if (clientFilterDropdownOpen()) {
+              <div class="tasks-page__filter-menu">
+                <div class="tasks-page__filter-search-wrap">
+                  <input
+                    class="tasks-page__filter-search"
+                    type="text"
+                    placeholder="Rechercher un client..."
+                    [value]="clientFilterSearch()"
+                    (input)="clientFilterSearch.set($any($event.target).value)"
+                  />
+                </div>
+                <div class="tasks-page__filter-list">
+                  <button type="button" class="tasks-page__filter-item" (click)="setClientFilter('')">
+                    <span>Tous les clients</span>
+                  </button>
+                  @for (c of filteredClients(); track c.id) {
+                    <button type="button" class="tasks-page__filter-item" (click)="setClientFilter(c.id)">
+                      <img class="tasks-page__filter-avatar" [src]="c.image || avatarFallback(c.name)" alt="" />
+                      <span>{{ c.name }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="tasks-page__filter-group">
+          <label class="tasks-page__filter-label">Statut</label>
+          <select class="tasks-page__filter-select" [value]="store.filters().status" (change)="setStatusFilter($any($event.target).value)">
+            <option value="">Tous les statuts</option>
+            <option value="en attente">En attente</option>
+            <option value="en cours">En cours</option>
+            <option value="en route">En route</option>
+            <option value="en pause">En pause</option>
+            <option value="terminée">Terminée</option>
+            <option value="annulée">Annulée</option>
+          </select>
+        </div>
+
+        <div class="tasks-page__filter-group">
+          <label class="tasks-page__filter-label">Type</label>
+          <select class="tasks-page__filter-select" [value]="store.filters().taskType" (change)="setTypeFilter($any($event.target).value)">
+            <option value="">Tous les types</option>
+            @for (tt of store.filterTaskTypes(); track tt.id) {
+              <option [value]="tt.name">{{ tt.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="tasks-page__filter-group">
+          <label class="tasks-page__filter-label">Payement</label>
+          <select class="tasks-page__filter-select" [value]="store.filters().paid" (change)="setPaidFilter($any($event.target).value)">
+            <option value="">Tous</option>
+            <option value="paid">Payé</option>
+            <option value="unpaid">Non payé</option>
+          </select>
+        </div>
+      </div>
+
+      <footer class="tasks-page__filters-footer">
+        <button type="button" class="tasks-page__filters-reset" (click)="clearFilters()">
+          Effacer les filtres
+        </button>
+      </footer>
+  </aside>
+
+  <div
+    class="tasks-page__payments-backdrop"
+    [class.tasks-page__payments-backdrop--open]="store.paymentsDrawerOpen()"
+    (click)="closeDeliveredPaymentsPanel()"
+    aria-hidden="true"
+  ></div>
+
+  <aside
+    class="tasks-page__payments-panel"
+    [class.tasks-page__payments-panel--open]="store.paymentsDrawerOpen()"
+    aria-label="Paiements remis à l'administration"
+  >
+    <header class="tasks-page__payments-header">
+      <h3 class="tasks-page__payments-title">Paiements remis à l'administration</h3>
+      <button
+        type="button"
+        class="tasks-page__payments-close"
+        (click)="closeDeliveredPaymentsPanel()"
+        title="Fermer"
+        aria-label="Fermer"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <div class="tasks-page__payments-content">
+      @if (store.deliveredPaymentsError()) {
+        <p class="tasks-page__payments-error">{{ store.deliveredPaymentsError() }}</p>
+      }
+      @if (store.deliveredPaymentsLoading()) {
+        <p class="tasks-page__payments-loading">Chargement…</p>
+      }
+      @if (!store.deliveredPaymentsLoading() && !store.deliveredPaymentsError() && store.deliveredPaymentsList().length === 0) {
+        <div class="tasks-page__payments-empty">
+          <p>Aucun paiement remis pour le moment.</p>
+        </div>
+      }
+      @if (!store.deliveredPaymentsLoading() && store.deliveredPaymentsList().length > 0) {
+        <ul class="tasks-page__payments-list">
+          @for (item of store.deliveredPaymentsList(); track item.id) {
+            <li class="tasks-page__payments-card">
+              <div class="tasks-page__payments-amount-row">
+                <span class="tasks-page__payments-amount">{{ formatDeliveredAmount(item.amount) }}</span>
+              </div>
+              <div class="tasks-page__payments-flow-row">
+                <div class="tasks-page__payments-flow-names">
+                  <span class="tasks-page__payments-strong">{{ item.client_name || '—' }}</span>
+                  <span class="tasks-page__payments-arrow" title="Encaissé par" aria-hidden="true">
+                    <svg class="tasks-page__payments-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </span>
+                  <span class="tasks-page__payments-muted">{{ item.delivered_by || '—' }}</span>
+                </div>
+                @if (item.date_collected_from_client) {
+                  <span class="tasks-page__payments-date">{{ item.date_collected_from_client }}</span>
+                }
+              </div>
+              <div class="tasks-page__payments-flow-row tasks-page__payments-flow-row--secondary">
+                <div class="tasks-page__payments-flow-names">
+                  <span class="tasks-page__payments-muted">{{ item.delivered_by || '—' }}</span>
+                  <span class="tasks-page__payments-arrow" title="Remis à" aria-hidden="true">
+                    <svg class="tasks-page__payments-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </span>
+                  <span class="tasks-page__payments-strong">{{ item.received_by || '—' }}</span>
+                </div>
+                <span class="tasks-page__payments-date">{{ item.date_received || '—' }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+        @if (store.deliveredPaymentsPage().last_page > 1) {
+          <footer class="tasks-page__payments-pager">
+            <span class="tasks-page__payments-pager-info">{{ deliveredPaymentsRangeLabel() }}</span>
+            <div class="tasks-page__payments-pager-btns">
+              <button
+                type="button"
+                class="tasks-page__payments-pager-btn"
+                [disabled]="store.deliveredPaymentsPage().current_page <= 1"
+                (click)="goDeliveredPaymentsPage(store.deliveredPaymentsPage().current_page - 1)"
+                aria-label="Page précédente"
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                class="tasks-page__payments-pager-btn"
+                [disabled]="store.deliveredPaymentsPage().current_page >= store.deliveredPaymentsPage().last_page"
+                (click)="goDeliveredPaymentsPage(store.deliveredPaymentsPage().current_page + 1)"
+                aria-label="Page suivante"
+              >
+                →
+              </button>
+            </div>
+          </footer>
+        }
+      }
+    </div>
+  </aside>
+
+  <div
+    class="tasks-page__tracking-backdrop"
+    [class.tasks-page__tracking-backdrop--open]="store.trackingDrawerOpen()"
+    (click)="closeTrackingPanel()"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    class="tasks-page__tracking-dock"
+    [class.tasks-page__tracking-dock--open]="store.trackingDrawerOpen()"
+  >
+    <div
+      class="tasks-page__tracking-filter-sheet"
+      [class.tasks-page__tracking-filter-sheet--open]="trackingFilterSheetOpen()"
+      role="dialog"
+      aria-label="Filtrer les utilisateurs"
+      [attr.aria-hidden]="!trackingFilterSheetOpen()"
+      [attr.inert]="trackingFilterSheetOpen() ? null : ''"
+    >
+      <div class="tasks-page__tracking-filter-sheet-inner">
+        <div class="tasks-page__tracking-filter-head">
+          <h4 class="tasks-page__tracking-filter-title">Filtrer les utilisateurs</h4>
+          <button type="button" class="tasks-page__tracking-filter-close" (click)="closeTrackingFilterSheet()" aria-label="Fermer">×</button>
+        </div>
+        <div class="tasks-page__tracking-filter-body">
+          <div class="tasks-page__tracking-filter-grid">
+            <div>
+              <label class="tasks-page__tracking-filter-label">Profils</label>
+              <div class="tasks-page__tracking-filter-list">
+                @for (p of trackingProfileOptions(); track p.id) {
+                  <label class="tasks-page__tracking-filter-row">
+                    <input
+                      type="checkbox"
+                      [checked]="profileFilterChecked(p.id)"
+                      (change)="toggleTrackingProfileFilter(p.id, $any($event.target).checked)"
+                    />
+                    <span>{{ p.name }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+            <div>
+              <label class="tasks-page__tracking-filter-label">Nom ou prénom</label>
+              <input
+                class="tasks-page__tracking-filter-input"
+                type="text"
+                placeholder="Rechercher par nom..."
+                [value]="userSearchFilter()"
+                (input)="setUserSearchFilter($any($event.target).value)"
+              />
+              <label class="tasks-page__tracking-filter-label tasks-page__tracking-filter-label--spaced">Statut</label>
+              <div class="tasks-page__tracking-filter-list">
+                <label class="tasks-page__tracking-filter-row">
+                  <input type="checkbox" value="waiting" [checked]="statusFilterChecked('waiting')" (change)="toggleTrackingStatusFilter('waiting', $any($event.target).checked)" />
+                  <span class="tasks-page__tracking-status-dot tasks-page__tracking-status-dot--gray"></span>
+                  <span>En attente</span>
+                </label>
+                <label class="tasks-page__tracking-filter-row">
+                  <input type="checkbox" value="working" [checked]="statusFilterChecked('working')" (change)="toggleTrackingStatusFilter('working', $any($event.target).checked)" />
+                  <span class="tasks-page__tracking-status-dot tasks-page__tracking-status-dot--yellow"></span>
+                  <span>En cours</span>
+                </label>
+                <label class="tasks-page__tracking-filter-row">
+                  <input type="checkbox" value="route" [checked]="statusFilterChecked('route')" (change)="toggleTrackingStatusFilter('route', $any($event.target).checked)" />
+                  <span class="tasks-page__tracking-status-dot tasks-page__tracking-status-dot--orange"></span>
+                  <span>En route</span>
+                </label>
+                <label class="tasks-page__tracking-filter-row">
+                  <input type="checkbox" value="paused" [checked]="statusFilterChecked('paused')" (change)="toggleTrackingStatusFilter('paused', $any($event.target).checked)" />
+                  <span class="tasks-page__tracking-status-dot tasks-page__tracking-status-dot--green"></span>
+                  <span>En pause</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tasks-page__tracking-filter-foot">
+          <button type="button" class="tasks-page__tracking-filter-reset" (click)="resetTrackingFilters()">Réinitialiser les filtres</button>
+        </div>
+      </div>
+    </div>
+
+    <aside
+      class="tasks-page__tracking-panel"
+      aria-label="Suivi des tâches"
+    >
+      <div class="tasks-page__tracking-inner">
+      <header class="tasks-page__tracking-header">
+        <div class="tasks-page__tracking-title-row">
+          <h3 class="tasks-page__tracking-title">Suivi des Tâches</h3>
+          <span class="tasks-page__tracking-date-label">({{ trackingLongDateLabel() }})</span>
+        </div>
+        <button type="button" class="tasks-page__tracking-close" (click)="closeTrackingPanel()" title="Fermer" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <div class="tasks-page__tracking-toolbar">
+        <div class="tasks-page__tracking-week">
+          <button type="button" class="tasks-page__tracking-week-nav" (click)="trackingPrevWeek()" aria-label="Semaine précédente">‹</button>
+          <div class="tasks-page__tracking-week-days">
+            @for (day of trackingWeekDays(); track day.date) {
+              <button
+                type="button"
+                class="tasks-page__tracking-day"
+                [class.tasks-page__tracking-day--active]="store.trackingDate() === day.date"
+                (click)="selectTrackingDay(day.date)"
+              >
+                <span class="tasks-page__tracking-day-name">{{ day.dayName }}</span>
+                <span class="tasks-page__tracking-day-num">{{ day.dayNumber }}</span>
+              </button>
+            }
+          </div>
+          <button type="button" class="tasks-page__tracking-week-nav" (click)="trackingNextWeek()" aria-label="Semaine suivante">›</button>
+        </div>
+
+        <div class="tasks-page__tracking-users-wrap">
+          <button type="button" class="tasks-page__tracking-filter-btn" (click)="toggleTrackingFilterSheet()" title="Filtrer les utilisateurs" aria-label="Filtrer les utilisateurs">
+            <svg class="tasks-page__tracking-filter-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
+            </svg>
+          </button>
+          @if (store.trackingUsersLoading()) {
+            <div class="tasks-page__tracking-users tasks-page__tracking-users--loading">
+              @for (s of [1, 2, 3, 4]; track s) {
+                <div class="tasks-page__tracking-user-skel"></div>
+              }
+            </div>
+          } @else {
+            <div class="tasks-page__tracking-users">
+              @for (user of filteredTrackingUsers(); track user.id) {
+                <button
+                  type="button"
+                  class="tasks-page__tracking-user"
+                  [class.tasks-page__tracking-user--selected]="store.selectedTrackingUserId() === user.id"
+                  [class.tasks-page__tracking-user--off]="!user.available"
+                  [disabled]="!user.available"
+                  (click)="selectTrackingUserCard(user)"
+                >
+                  <div class="tasks-page__tracking-user-avatar-wrap">
+                    <img
+                      class="tasks-page__tracking-user-avatar"
+                      [class.tasks-page__tracking-user-avatar--gray]="!user.available"
+                      [class.tasks-page__tracking-user-avatar--st-working]="user.available && user.last_event_status === 'working'"
+                      [class.tasks-page__tracking-user-avatar--st-paused]="user.available && user.last_event_status === 'paused'"
+                      [class.tasks-page__tracking-user-avatar--st-route]="user.available && user.last_event_status === 'route'"
+                      [class.tasks-page__tracking-user-avatar--st-waiting]="user.available && user.last_event_status === 'waiting'"
+                      [src]="user.image || avatarFallback(user.name)"
+                      alt=""
+                    />
+                    @if (!user.available) {
+                      <span class="tasks-page__tracking-user-off-badge" aria-hidden="true">✕</span>
+                    }
+                  </div>
+                  <div class="tasks-page__tracking-user-text">
+                    <span class="tasks-page__tracking-user-name" [class.tasks-page__tracking-user-name--muted]="!user.available">{{ user.name }}</span>
+                    <span class="tasks-page__tracking-user-profile" [class.tasks-page__tracking-user-profile--leave]="!user.available">
+                      {{ user.available ? user.profile : 'En congé' }}
+                    </span>
+                  </div>
+                  @if (store.selectedTrackingUserId() === user.id && user.available) {
+                    <span class="tasks-page__tracking-user-check" aria-hidden="true">✓</span>
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="tasks-page__tracking-body">
+        @if (store.trackingUsersError()) {
+          <p class="tasks-page__tracking-err">{{ store.trackingUsersError() }}</p>
+        }
+        @if (store.trackingEventsError()) {
+          <p class="tasks-page__tracking-err">{{ store.trackingEventsError() }}</p>
+        }
+        @if (store.trackingEventsLoading()) {
+          <p class="tasks-page__tracking-loading">Chargement du suivi…</p>
+        }
+        @if (!store.trackingEventsLoading() && !store.selectedTrackingUserId()) {
+          <div class="tasks-page__tracking-empty">
+            <p class="tasks-page__tracking-empty-sub">Sélectionnez un utilisateur pour voir le détail du jour.</p>
+          </div>
+        }
+        @if (!store.trackingEventsLoading() && !store.trackingEventsError() && store.selectedTrackingUserId() && store.trackingEvents().length === 0) {
+          <div class="tasks-page__tracking-empty">
+            <p class="tasks-page__tracking-empty-title">Aucune activité</p>
+            <p class="tasks-page__tracking-empty-sub">Aucune tâche commencée ou terminée pour cette date.</p>
+          </div>
+        }
+        @if (!store.trackingEventsLoading() && store.trackingEvents().length > 0) {
+          <div class="tasks-page__tracking-timeline">
+            @for (ev of store.trackingEvents(); track ev.id) {
+              <div class="tasks-page__tracking-row">
+                <div class="tasks-page__tracking-rail">
+                  <div class="tasks-page__tracking-line" aria-hidden="true"></div>
+                  <div class="tasks-page__tracking-dot-wrap">
+                    <div [class]="'tasks-page__tracking-dot ' + trackingTimelineDotClass(ev)"></div>
+                  </div>
+                </div>
+                <div class="tasks-page__tracking-card">
+                  <div class="tasks-page__tracking-card-head">
+                    <span class="tasks-page__tracking-time">{{ ev.time }}</span>
+                    <span [class]="'tasks-page__tracking-pill ' + trackingPillClass(ev)">{{ trackingEventLabel(ev.event_type) }}</span>
+                  </div>
+                  <div class="tasks-page__tracking-card-body">
+                    <div class="tasks-page__tracking-desc">
+                      @if (ev.event_type === 'start_deployment') {
+                        <span>Déplacement démarré @if (ev.city_name) { vers <strong>{{ ev.city_name }}</strong> }</span>
+                      }
+                      @if (ev.event_type === 'finish_deployment') {
+                        <span>Déplacement terminé</span>
+                      }
+                      @if (ev.event_type === 'finish_task') {
+                        <span>Achève la tâche <strong>{{ ev.task_type }}</strong>: <strong>{{ ev.task_name }}</strong></span>
+                      }
+                      @if (ev.event_type === 'cancel_task') {
+                        <span>Annule la tâche <strong>{{ ev.task_type }}</strong>: <strong>{{ ev.task_name }}</strong></span>
+                      }
+                      @if (ev.event_type === 'start_route') {
+                        <span>Démarre le trajet vers la tâche <strong>{{ ev.task_type }}</strong>: <strong>{{ ev.task_name }}</strong></span>
+                      }
+                      @if (ev.event_type === 'end_route') {
+                        <span>Annule le trajet vers la tâche <strong>{{ ev.task_type }}</strong>: <strong>{{ ev.task_name }}</strong></span>
+                      }
+                      @if (ev.event_type === 'pause_visit') {
+                        <span>Met en pause la visite pour la tâche <strong>{{ ev.task_type }}</strong>: <strong>{{ ev.task_name }}</strong></span>
+                      }
+                      @if (ev.event_type === 'resume_visit') {
+                        <span>Reprend la visite pour la tâche <strong>{{ ev.task_type }}</strong>: <strong>{{ ev.task_name }}</strong></span>
+                      }
+                      @if (
+                        ev.event_type !== 'start_deployment' &&
+                        ev.event_type !== 'finish_deployment' &&
+                        ev.event_type !== 'finish_task' &&
+                        ev.event_type !== 'cancel_task' &&
+                        ev.event_type !== 'start_route' &&
+                        ev.event_type !== 'end_route' &&
+                        ev.event_type !== 'pause_visit' &&
+                        ev.event_type !== 'resume_visit'
+                      ) {
+                        <span>
+                          {{ ev.event_type === 'start_visit' ? 'Commence une visite pour la tâche ' : 'Termine la visite pour la tâche ' }}
+                          <strong>{{ ev.task_type }}</strong>:
+                          <strong>{{ ev.task_name }}</strong>
+                        </span>
+                      }
+                    </div>
+                    @if (showTrackingClientBlock(ev)) {
+                      <div class="tasks-page__tracking-client">
+                        <img class="tasks-page__tracking-client-img" [src]="ev.client_image || avatarFallback(ev.client_name || '')" alt="" />
+                        <div class="tasks-page__tracking-client-text">
+                          <span class="tasks-page__tracking-client-name">{{ ev.client_name }}</span>
+                          <span class="tasks-page__tracking-client-city">{{ ev.client_city }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    </aside>
+  </div>
+</div>

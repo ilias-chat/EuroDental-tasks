@@ -1,0 +1,86 @@
+@if (store.filteredPayload()) {
+  <div class="cal-day__toolbar">
+    <div class="cal-day__layout-toggle" role="group" aria-label="Mode d'affichage">
+      <button
+        type="button"
+        class="cal-day__layout-btn"
+        [class.cal-day__layout-btn--active]="dayLayout() === 'technician'"
+        (click)="setDayLayout('technician')"
+      >
+        Par technicien
+      </button>
+      <button
+        type="button"
+        class="cal-day__layout-btn"
+        [class.cal-day__layout-btn--active]="dayLayout() === 'status'"
+        (click)="setDayLayout('status')"
+      >
+        Par statut
+      </button>
+    </div>
+  </div>
+
+  @if (!hasAnyTasksForDay()) {
+    <p class="cal-day__empty">Aucune tâche pour cette date.</p>
+  } @else if (dayLayout() === 'technician') {
+    <div
+      class="cal-day__tech-board"
+      role="region"
+      aria-label="Tâches par technicien"
+      [style.--cal-day-tech-cols]="technicianColumns().length"
+    >
+      @for (col of technicianColumns(); track col.key) {
+        <div class="cal-day__tech-col">
+          <div class="cal-day__tech-head">
+            <img class="cal-day__tech-avatar" [src]="columnAvatarSrc(col)" alt="" width="32" height="32" />
+            <div class="cal-day__tech-head-text">
+              <span class="cal-day__tech-name">{{ col.name }}</span>
+              <span class="cal-day__tech-meta">
+                {{ col.count }} {{ col.count === 1 ? 'tâche' : 'tâches' }}
+              </span>
+            </div>
+          </div>
+          <div class="cal-day__tech-body">
+            @for (seg of col.segments; track segmentTrack(seg)) {
+              @if (seg.kind === 'deployment') {
+                <app-calendar-deployment-expandable [deployment]="seg.deployment" [tasksOverride]="seg.tasks" />
+              } @else {
+                <app-calendar-task-card [task]="seg.entry.task" [deploymentLabel]="seg.entry.deploymentLabel" />
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="cal-day__status-board">
+      @for (col of statusColumns; track col.status) {
+        <div class="cal-day__status-col">
+          <div class="cal-day__status-head">
+            <span class="cal-day__status-title">{{ col.label }}</span>
+            <span class="cal-day__status-meta">
+              <span class="cal-day__status-count">{{ totalTasksForStatus(col.status) }}</span>
+              <span class="cal-day__status-suffix">{{
+                totalTasksForStatus(col.status) === 1 ? 'tâche' : 'tâches'
+              }}</span>
+            </span>
+          </div>
+          <div class="cal-day__status-body">
+            @for (slice of deploymentsForStatus(col.status); track slice.deployment.id) {
+              <app-calendar-deployment-expandable
+                [deployment]="slice.deployment"
+                [tasksOverride]="slice.tasks"
+              />
+            }
+            @for (t of standaloneForStatus(col.status); track t.id) {
+              <app-calendar-task-card [task]="t" />
+            }
+            @if (totalTasksForStatus(col.status) === 0) {
+              <p class="cal-day__status-empty">Aucune tâche</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+}

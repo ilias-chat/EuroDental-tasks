@@ -1,0 +1,400 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.cal-month {
+  --cal-month-body-rows: 5;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: auto repeat(var(--cal-month-body-rows), minmax(0, 1fr));
+  gap: 1px;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  background: var(--app-border-tertiary);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-lg);
+  overflow: hidden;
+}
+
+.cal-month__head {
+  padding: 8px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--app-text-tertiary);
+  background: var(--app-bg-secondary);
+  text-align: center;
+}
+
+.cal-month__cell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 6px;
+  background: var(--app-bg-primary);
+  font-size: 13px;
+  color: var(--app-text-secondary);
+}
+
+.cal-month__cell--muted {
+  opacity: 0.45;
+}
+
+.cal-month__daynum {
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--app-text-primary);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.cal-month__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cal-month__list--scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+
+/* Déploiement — compact card, gradient by deployment id, no nested task rows */
+.cal-month__dep-item {
+  margin-bottom: 4px;
+  list-style: none;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.cal-month__dep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 5px 6px;
+  border-radius: var(--app-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+  transition:
+    filter var(--app-transition-fast),
+    box-shadow var(--app-transition-fast);
+
+  &:hover {
+    filter: brightness(1.06);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
+  }
+}
+
+.cal-month__dep-plane {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  opacity: 0.95;
+}
+
+.cal-month__dep-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.cal-month__dep-title {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-month__dep-city {
+  width: 100%;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.62);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-month__dep-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: stretch;
+}
+
+.cal-month__dep-count {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stable “unique” gradients per deployment id (tone = id % 8) */
+.cal-month__dep--tone-0 {
+  background: linear-gradient(115deg, #6366f1 0%, #9333ea 100%);
+}
+
+.cal-month__dep--tone-1 {
+  background: linear-gradient(115deg, #0d9488 0%, #2563eb 100%);
+}
+
+.cal-month__dep--tone-2 {
+  background: linear-gradient(115deg, #db2777 0%, #ea580c 100%);
+}
+
+.cal-month__dep--tone-3 {
+  background: linear-gradient(115deg, #7c3aed 0%, #ec4899 100%);
+}
+
+.cal-month__dep--tone-4 {
+  background: linear-gradient(115deg, #0369a1 0%, #4f46e5 100%);
+}
+
+.cal-month__dep--tone-5 {
+  background: linear-gradient(115deg, #b45309 0%, #ca8a04 100%);
+}
+
+.cal-month__dep--tone-6 {
+  background: linear-gradient(115deg, #0f766e 0%, #65a30d 100%);
+}
+
+.cal-month__dep--tone-7 {
+  background: linear-gradient(115deg, #be123c 0%, #7e22ce 100%);
+}
+
+/* Tâches — same layout/colors as Laravel `admin/tasks/_month.blade.php` */
+.cal-month__task-item {
+  margin-bottom: 4px;
+  list-style: none;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.cal-month__task-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  border-radius: 4px;
+  border: 1px solid;
+  position: relative;
+  cursor: pointer;
+  transition: box-shadow var(--app-transition-fast);
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  }
+}
+
+.cal-month__task-card--attente {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+
+  &:hover {
+    background: #fee2e2;
+  }
+}
+
+.cal-month__task-card--cours {
+  background: #fefce8;
+  border-color: #fef08a;
+  color: #a16207;
+
+  &:hover {
+    background: #fef9c3;
+  }
+}
+
+.cal-month__task-card--route {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #c2410c;
+
+  &:hover {
+    background: #ffedd5;
+  }
+}
+
+.cal-month__task-card--pause {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+
+  &:hover {
+    background: #dcfce7;
+  }
+}
+
+.cal-month__task-card--terminee {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+
+  &:hover {
+    background: #dbeafe;
+  }
+}
+
+.cal-month__task-card--annulee {
+  background: #faf5ff;
+  border-color: #e9d5ff;
+  color: #7e22ce;
+
+  &:hover {
+    background: #f3e8ff;
+  }
+}
+
+.cal-month__task-card--default {
+  background: var(--app-bg-secondary);
+  border-color: var(--app-border-tertiary);
+  color: var(--app-text-primary);
+
+  &:hover {
+    background: var(--app-bg-hover);
+  }
+}
+
+.cal-month__task-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cal-month__task-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.cal-month__task-bill-wrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  line-height: 0;
+}
+
+.cal-month__task-bill {
+  width: 14px;
+  height: 14px;
+  color: #16a34a;
+}
+
+.cal-month__task-admin {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: #2563eb;
+}
+
+.cal-month__task-bank {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: #2563eb;
+}
+
+:host-context([data-theme='dark']) {
+  .cal-month__task-card--attente {
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(248, 113, 113, 0.4);
+    color: #fecaca;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+  }
+
+  .cal-month__task-card--cours {
+    background: rgba(234, 179, 8, 0.14);
+    border-color: rgba(250, 204, 21, 0.35);
+    color: #fde047;
+
+    &:hover {
+      background: rgba(234, 179, 8, 0.22);
+    }
+  }
+
+  .cal-month__task-card--route {
+    background: rgba(249, 115, 22, 0.14);
+    border-color: rgba(251, 146, 60, 0.4);
+    color: #fdba74;
+
+    &:hover {
+      background: rgba(249, 115, 22, 0.22);
+    }
+  }
+
+  .cal-month__task-card--pause {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(74, 222, 128, 0.35);
+    color: #86efac;
+
+    &:hover {
+      background: rgba(34, 197, 94, 0.2);
+    }
+  }
+
+  .cal-month__task-card--terminee {
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(96, 165, 250, 0.4);
+    color: #93c5fd;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.22);
+    }
+  }
+
+  .cal-month__task-card--annulee {
+    background: rgba(168, 85, 247, 0.14);
+    border-color: rgba(192, 132, 252, 0.4);
+    color: #d8b4fe;
+
+    &:hover {
+      background: rgba(168, 85, 247, 0.22);
+    }
+  }
+
+  .cal-month__task-bill {
+    color: #4ade80;
+  }
+
+  .cal-month__task-admin,
+  .cal-month__task-bank {
+    color: #60a5fa;
+  }
+}

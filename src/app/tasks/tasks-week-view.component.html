@@ -1,0 +1,21 @@
+<div class="cal-week">
+  @for (day of weekDays(); track day.getTime()) {
+    <div class="cal-week__col">
+      <div class="cal-week__head">
+        {{ dayLabel(day) }}
+      </div>
+      <div class="cal-week__body">
+        @for (card of cardsForDay(day); track card.trackId) {
+          @if (card.kind === 'deployment') {
+            <app-calendar-deployment-expandable [deployment]="card.deployment" />
+          } @else {
+            <app-calendar-task-card [task]="card.task" [deploymentLabel]="card.deploymentLabel" />
+          }
+        }
+        @if (cardsForDay(day).length === 0) {
+          <span class="cal-week__empty">—</span>
+        }
+      </div>
+    </div>
+  }
+</div>

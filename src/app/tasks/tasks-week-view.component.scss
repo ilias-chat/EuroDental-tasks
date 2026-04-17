@@ -1,0 +1,55 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: var(--app-space-2);
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  align-content: stretch;
+}
+
+.cal-week__col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-primary);
+  overflow: hidden;
+}
+
+.cal-week__head {
+  flex-shrink: 0;
+  padding: 8px 10px;
+  background: var(--app-bg-secondary);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--app-text-secondary);
+  text-align: center;
+}
+
+.cal-week__body {
+  flex: 1;
+  min-height: 0;
+  padding: 8px;
+  font-size: 13px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.cal-week__empty {
+  color: var(--app-text-tertiary);
+  font-size: 13px;
+}

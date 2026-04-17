@@ -1,0 +1,94 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: var(--app-space-6);
+}
+
+.login-page {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-3);
+}
+
+.login-page__field input {
+  width: 100%;
+  height: 40px;
+  padding: 8px 12px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 15px;
+}
+
+.login-page__field input:focus {
+  outline: none;
+  border-color: var(--app-border-primary);
+  box-shadow: var(--app-shadow-focus);
+}
+
+.login-page__field input::placeholder {
+  color: var(--app-text-tertiary);
+}
+
+.login-page__error {
+  padding: var(--app-space-2) var(--app-space-3);
+  border-radius: var(--app-radius-md);
+  background: var(--app-semantic-danger-bg);
+  color: var(--app-semantic-danger-text);
+  font-size: 13px;
+}
+
+.login-page__submit {
+  height: 40px;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: var(--app-brand-primary);
+  color: var(--app-brand-primary-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--app-transition-fast);
+}
+
+.login-page__submit:hover:not(:disabled) {
+  background: var(--app-brand-primary-hover);
+}
+
+.login-page__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-page__theme {
+  position: fixed;
+  right: var(--app-space-4);
+  bottom: var(--app-space-4);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-secondary);
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+}
+
+.login-page__theme:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+}
+
+.login-page__theme-icon {
+  width: 22px;
+  height: 22px;
+}

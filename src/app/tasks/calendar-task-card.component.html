@@ -1,0 +1,66 @@
+<div
+  class="cal-task-card"
+  [style.--cal-task-strip-color]="taskStatusStripVar(task.status)"
+>
+  <span class="cal-task-card__status-bar" aria-hidden="true"></span>
+  <div class="cal-task-card__body">
+    @if (deploymentLabel) {
+      <div class="cal-task-card__deployment-tag">{{ deploymentLabel }}</div>
+    }
+    <div class="cal-task-card__title" [attr.title]="taskTitle()">{{ taskTitle() }}</div>
+
+    <div class="cal-task-card__badges">
+      @if (task.has_ongoing_visit) {
+        <span class="cal-task-card__visit-dot" title="Visite en cours"></span>
+      }
+      @if (isPaid()) {
+        <span
+          class="cal-task-card__badge cal-task-card__badge--paid"
+          [attr.title]="
+            formatAmountDh(task.amount_paid) ? 'Payé : ' + formatAmountDh(task.amount_paid) : 'Payé'
+          "
+        >
+          @if (formatAmountDh(task.amount_paid)) {
+            {{ formatAmountDh(task.amount_paid) }}
+          } @else {
+            Payé
+          }
+        </span>
+      } @else {
+        <span class="cal-task-card__badge cal-task-card__badge--unpaid" title="Non payé">Non payé</span>
+      }
+      @if (task.urgent) {
+        <span class="cal-task-card__badge cal-task-card__badge--urgent">Urgente</span>
+      }
+    </div>
+
+    @if (formatAmountDh(task.admin_delivery_amount)) {
+      <div class="cal-task-card__admin-delivery">
+        <span
+          class="cal-task-card__badge cal-task-card__badge--admin-delivery"
+          title="Paiement à remettre à l'administration"
+        >
+          {{ formatAmountDh(task.admin_delivery_amount) }}
+        </span>
+      </div>
+    }
+
+    <div class="cal-task-card__tech-row">
+      <img class="cal-task-card__avatar" [src]="technicianAvatarSrc(task)" alt="" width="24" height="24" />
+      <span
+        class="cal-task-card__tech-name"
+        [class.cal-task-card__tech-name--missing]="!task.technician_name?.trim()"
+      >
+        {{ task.technician_name?.trim() || 'Tech non assigné' }}
+      </span>
+    </div>
+
+    <div class="cal-task-card__desc-block">
+      @if (plainDescriptionPreview(task.description)) {
+        <p class="cal-task-card__description">{{ plainDescriptionPreview(task.description) }}</p>
+      } @else {
+        <p class="cal-task-card__description cal-task-card__description--empty">Aucune description</p>
+      }
+    </div>
+  </div>
+</div>

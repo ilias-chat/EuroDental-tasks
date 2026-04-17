@@ -1,0 +1,1571 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.tasks-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  overflow: hidden;
+}
+
+.tasks-page__login {
+  max-width: 360px;
+  padding: var(--app-space-6);
+  border-radius: var(--app-radius-lg);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-primary);
+}
+
+.tasks-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-1);
+  margin-bottom: var(--app-space-4);
+}
+
+.tasks-page__field label {
+  font-size: var(--app-font-label-size);
+  font-weight: var(--app-font-weight-medium);
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__field input {
+  height: 36px;
+  padding: 8px 12px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 15px;
+}
+
+.tasks-page__field input:focus {
+  outline: none;
+  border-color: var(--app-border-primary);
+  box-shadow: var(--app-shadow-focus);
+}
+
+.tasks-page__header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+  flex-shrink: 0;
+  margin-bottom: var(--app-space-4);
+  min-width: 0;
+}
+
+.tasks-page__tabs {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-secondary);
+  border: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.tasks-page__tab {
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--app-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+}
+
+.tasks-page__tab:hover {
+  color: var(--app-text-primary);
+}
+
+.tasks-page__tab--active {
+  background: var(--app-bg-primary);
+  color: var(--app-text-primary);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.tasks-page__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--app-space-2);
+  min-width: 0;
+  flex: 0 1 auto;
+  justify-content: flex-start;
+}
+
+.tasks-page__nav button {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: transparent;
+  color: var(--app-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--app-transition-fast);
+}
+
+.tasks-page__nav button:hover {
+  background: var(--app-bg-hover);
+}
+
+.tasks-page__period {
+  font-size: 15px;
+  color: var(--app-text-secondary);
+  min-width: 0;
+  max-width: 22rem;
+  padding: 0 var(--app-space-1);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+  .tasks-page__header {
+    flex-wrap: wrap;
+    row-gap: var(--app-space-2);
+  }
+
+  .tasks-page__tabs {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.tasks-page__error {
+  flex-shrink: 0;
+  padding: var(--app-space-3) var(--app-space-4);
+  border-radius: var(--app-radius-md);
+  background: var(--app-semantic-danger-bg);
+  color: var(--app-semantic-danger-text);
+  font-size: 14px;
+  margin-bottom: var(--app-space-4);
+}
+
+.tasks-page__loading {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--app-text-tertiary);
+  margin: 0 0 var(--app-space-3);
+}
+
+.tasks-page__body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tasks-page__content {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tasks-page__filters-backdrop {
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  left: var(--app-sidebar-width);
+  background: var(--app-modal-backdrop);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+  z-index: 20;
+}
+
+.tasks-page__filters-backdrop--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tasks-page__filters-panel {
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  width: min(24rem, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg-primary);
+  border-left: var(--app-border-default) var(--app-border-tertiary);
+  /* Shadow only when open; slide past viewport when closed so glow does not show */
+  box-shadow: none;
+  transform: translateX(calc(100% + 28px));
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease;
+  z-index: 30;
+}
+
+.tasks-page__filters-panel--open {
+  transform: translateX(0);
+  box-shadow: var(--app-shadow-md);
+}
+
+:host-context(.shell--sidebar-collapsed) .tasks-page__filters-backdrop {
+  left: var(--app-sidebar-collapsed-width);
+}
+
+.tasks-page__filters-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  padding: var(--app-space-3);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+}
+
+.tasks-page__filters-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--app-space-2);
+  min-width: 0;
+}
+
+.tasks-page__filters-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--app-text-primary);
+}
+
+.tasks-page__filters-total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__filters-total-value {
+  font-weight: 700;
+}
+
+.tasks-page__filters-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+}
+
+.tasks-page__filters-close:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+}
+
+.tasks-page__filters-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tasks-page__filters-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--app-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+}
+
+.tasks-page__filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+}
+
+.tasks-page__filter-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__filter-dropdown {
+  position: relative;
+}
+
+.tasks-page__filter-trigger,
+.tasks-page__filter-select {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 14px;
+}
+
+.tasks-page__filter-trigger {
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.tasks-page__filter-select {
+  padding: 0 10px;
+}
+
+.tasks-page__filter-chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--app-text-tertiary);
+  transition: transform 140ms ease;
+}
+
+.tasks-page__filter-chevron--open {
+  transform: rotate(180deg);
+}
+
+.tasks-page__filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  border: var(--app-border-default) var(--app-border-secondary);
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-primary);
+  box-shadow: var(--app-shadow-md);
+  overflow: hidden;
+}
+
+.tasks-page__filter-search-wrap {
+  padding: var(--app-space-2);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.tasks-page__filter-search {
+  width: 100%;
+  height: 34px;
+  padding: 8px 10px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+}
+
+.tasks-page__filter-list {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.tasks-page__filter-item {
+  width: 100%;
+  min-height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--app-text-primary);
+  font-size: 14px;
+  padding: 7px 10px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.tasks-page__filter-item:hover {
+  background: var(--app-bg-hover);
+}
+
+.tasks-page__filter-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--app-radius-sm);
+  object-fit: cover;
+  border: var(--app-border-default) var(--app-border-secondary);
+}
+
+.tasks-page__filters-footer {
+  flex-shrink: 0;
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+  padding: var(--app-space-3);
+}
+
+.tasks-page__filters-reset {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: transparent;
+  color: var(--app-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tasks-page__filters-reset:hover {
+  background: var(--app-bg-hover);
+}
+
+/* Paiements remis (same slide-in pattern as filters; mutually exclusive via store) */
+.tasks-page__payments-backdrop {
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  left: var(--app-sidebar-width);
+  background: var(--app-modal-backdrop);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+  z-index: 20;
+}
+
+.tasks-page__payments-backdrop--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tasks-page__payments-panel {
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  width: min(24rem, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg-primary);
+  border-left: var(--app-border-default) var(--app-border-tertiary);
+  box-shadow: none;
+  transform: translateX(calc(100% + 28px));
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease;
+  z-index: 30;
+}
+
+.tasks-page__payments-panel--open {
+  transform: translateX(0);
+  box-shadow: var(--app-shadow-md);
+}
+
+:host-context(.shell--sidebar-collapsed) .tasks-page__payments-backdrop {
+  left: var(--app-sidebar-collapsed-width);
+}
+
+.tasks-page__payments-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  padding: var(--app-space-3);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+}
+
+.tasks-page__payments-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--app-text-primary);
+  line-height: 1.3;
+}
+
+.tasks-page__payments-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+}
+
+.tasks-page__payments-close:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+}
+
+.tasks-page__payments-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tasks-page__payments-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--app-space-4);
+}
+
+.tasks-page__payments-error {
+  margin: 0 0 var(--app-space-3);
+  font-size: 14px;
+  color: var(--app-text-danger, #b91c1c);
+}
+
+.tasks-page__payments-loading {
+  margin: var(--app-space-6) 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__payments-empty {
+  text-align: center;
+  padding: var(--app-space-6) var(--app-space-2);
+  font-size: 14px;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__payments-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-3);
+}
+
+.tasks-page__payments-card {
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+  padding: var(--app-space-3);
+}
+
+.tasks-page__payments-amount-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--app-space-3);
+}
+
+.tasks-page__payments-amount {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--app-text-primary);
+}
+
+.tasks-page__payments-flow-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  font-size: 13px;
+  margin-bottom: var(--app-space-2);
+}
+
+.tasks-page__payments-flow-row--secondary {
+  margin-bottom: 0;
+}
+
+.tasks-page__payments-flow-names {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.tasks-page__payments-flow-names .tasks-page__payments-strong,
+.tasks-page__payments-flow-names .tasks-page__payments-muted {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.tasks-page__payments-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--app-text-tertiary);
+  opacity: 0.9;
+}
+
+.tasks-page__payments-arrow-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.tasks-page__payments-strong {
+  font-weight: 600;
+  color: var(--app-text-primary);
+}
+
+.tasks-page__payments-muted {
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__payments-date {
+  font-size: 12px;
+  color: var(--app-text-tertiary);
+  margin-left: auto;
+}
+
+.tasks-page__payments-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  margin-top: var(--app-space-4);
+  padding-top: var(--app-space-3);
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.tasks-page__payments-pager-info {
+  font-size: 13px;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__payments-pager-btns {
+  display: flex;
+  gap: var(--app-space-2);
+}
+
+.tasks-page__payments-pager-btn {
+  min-width: 36px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tasks-page__payments-pager-btn:hover:not(:disabled) {
+  background: var(--app-bg-hover);
+}
+
+.tasks-page__payments-pager-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* —— Suivi (même données que Mobile\\TaskController) —— */
+.tasks-page__tracking-backdrop {
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  left: var(--app-sidebar-width);
+  background: var(--app-modal-backdrop);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+  z-index: 22;
+}
+
+.tasks-page__tracking-backdrop--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Dock = filtre (à gauche) + panneau suivi : largeur du suivi inchangée quand le filtre s’ouvre */
+.tasks-page__tracking-dock {
+  --tasks-tracking-slot: calc(100vw - var(--app-sidebar-width) - var(--app-sidebar-collapsed-width));
+
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  z-index: 32;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  transform: translateX(calc(100% + 28px));
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease;
+  pointer-events: none;
+}
+
+.tasks-page__tracking-dock--open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+:host-context(.shell--sidebar-collapsed) .tasks-page__tracking-dock {
+  --tasks-tracking-slot: calc(100vw - var(--app-sidebar-collapsed-width) - var(--app-sidebar-collapsed-width));
+}
+
+:host-context(.shell--sidebar-collapsed) .tasks-page__tracking-backdrop {
+  left: var(--app-sidebar-collapsed-width);
+}
+
+.tasks-page__tracking-panel {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(56rem, var(--tasks-tracking-slot));
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg-primary);
+  border-left: var(--app-border-default) var(--app-border-tertiary);
+  box-shadow: none;
+}
+
+.tasks-page__tracking-dock--open .tasks-page__tracking-panel {
+  box-shadow: var(--app-shadow-md);
+}
+
+/* Une seule séparation filtre / suivi (évite double trait) */
+.tasks-page__tracking-filter-sheet--open + .tasks-page__tracking-panel {
+  border-left: none;
+}
+
+.tasks-page__tracking-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Filtre : à gauche du panneau suivi (hors du aside), pleine hauteur, n’élargit pas le suivi */
+.tasks-page__tracking-filter-sheet {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border: none;
+  background: var(--app-bg-secondary);
+  color: var(--app-text-primary);
+  transition:
+    width 260ms ease,
+    max-width 260ms ease,
+    opacity 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.tasks-page__tracking-filter-sheet--open {
+  width: min(20rem, 46vw);
+  max-width: min(20rem, 46vw);
+  min-width: min(20rem, 46vw);
+  opacity: 1;
+  pointer-events: auto;
+  border-right: var(--app-border-default) var(--app-border-tertiary);
+  box-shadow: 4px 0 18px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-sheet--open {
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45);
+}
+
+.tasks-page__tracking-filter-sheet-inner {
+  display: flex;
+  flex-direction: column;
+  width: min(20rem, 46vw);
+  height: 100%;
+  min-height: 0;
+  flex-shrink: 0;
+  background: var(--app-bg-secondary);
+}
+
+.tasks-page__tracking-filter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  min-height: 60px;
+  height: 60px;
+  padding: 0 var(--app-space-3);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.tasks-page__tracking-filter-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.tasks-page__tracking-filter-close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__tracking-filter-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--app-space-3);
+}
+
+.tasks-page__tracking-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--app-space-4);
+}
+
+.tasks-page__tracking-filter-sheet .tasks-page__tracking-filter-grid {
+  grid-template-columns: 1fr;
+  gap: var(--app-space-3);
+}
+
+@media (max-width: 640px) {
+  .tasks-page__tracking-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tasks-page__tracking-filter-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--app-text-secondary);
+  margin-bottom: var(--app-space-2);
+}
+
+.tasks-page__tracking-filter-label--spaced {
+  margin-top: var(--app-space-3);
+}
+
+.tasks-page__tracking-filter-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 14px;
+}
+
+.tasks-page__tracking-filter-list {
+  max-height: 14rem;
+  overflow-y: auto;
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-md);
+  padding: var(--app-space-2);
+}
+
+.tasks-page__tracking-filter-sheet .tasks-page__tracking-filter-list {
+  max-height: min(11rem, 28vh);
+}
+
+.tasks-page__tracking-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tasks-page__tracking-filter-foot {
+  padding: var(--app-space-3);
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+}
+
+.tasks-page__tracking-filter-reset {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-primary);
+  color: var(--app-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tasks-page__tracking-filter-reset:hover {
+  background: var(--app-bg-hover);
+}
+
+/* Filtre suivi — texte plus lisible en thème sombre */
+:root[data-theme='dark'] .tasks-page__tracking-filter-sheet .tasks-page__tracking-filter-title {
+  color: #f5f2eb;
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-sheet .tasks-page__tracking-filter-label {
+  color: #d4d0c7;
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-sheet .tasks-page__tracking-filter-row {
+  color: #ebe8e0;
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-close {
+  color: #d4d0c7;
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-close:hover {
+  color: #f5f2eb;
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-input::placeholder {
+  color: #9b9890;
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-reset {
+  color: #f0ede6;
+  border-color: rgba(240, 237, 230, 0.38);
+  background: var(--app-bg-tertiary);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-reset:hover {
+  background: var(--app-bg-hover);
+  border-color: rgba(240, 237, 230, 0.48);
+}
+
+.tasks-page__tracking-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tasks-page__tracking-status-dot--gray {
+  background: #9ca3af;
+}
+
+.tasks-page__tracking-status-dot--yellow {
+  background: #eab308;
+}
+
+.tasks-page__tracking-status-dot--orange {
+  background: #f97316;
+}
+
+.tasks-page__tracking-status-dot--green {
+  background: #22c55e;
+}
+
+.tasks-page__tracking-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  padding: var(--app-space-3);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+}
+
+.tasks-page__tracking-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--app-space-2);
+  min-width: 0;
+}
+
+.tasks-page__tracking-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.tasks-page__tracking-date-label {
+  font-size: 14px;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__tracking-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-text-secondary);
+  cursor: pointer;
+}
+
+.tasks-page__tracking-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tasks-page__tracking-toolbar {
+  flex-shrink: 0;
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+  padding: var(--app-space-3) 0;
+}
+
+.tasks-page__tracking-week {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  padding: 0 var(--app-space-3);
+  margin-bottom: var(--app-space-3);
+}
+
+.tasks-page__tracking-week-nav {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-primary);
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--app-text-primary);
+}
+
+.tasks-page__tracking-week-days {
+  display: flex;
+  gap: var(--app-space-2);
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 2px;
+}
+
+.tasks-page__tracking-day {
+  flex-shrink: 0;
+  min-width: 56px;
+  padding: 8px 10px;
+  border-radius: var(--app-radius-md);
+  border: 2px solid var(--app-border-secondary);
+  background: var(--app-bg-primary);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--app-text-primary);
+}
+
+.tasks-page__tracking-day--active {
+  background: var(--app-accent-primary, #3b82f6);
+  border-color: var(--app-accent-primary, #3b82f6);
+  color: #fff;
+}
+
+.tasks-page__tracking-day-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.tasks-page__tracking-day-num {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.tasks-page__tracking-users-wrap {
+  --tracking-user-chip-h: 64px;
+
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  padding: 0 var(--app-space-3);
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  padding-top: var(--app-space-3);
+}
+
+.tasks-page__tracking-filter-btn {
+  box-sizing: border-box;
+  width: 40px;
+  height: var(--tracking-user-chip-h);
+  min-height: var(--tracking-user-chip-h);
+  max-height: var(--tracking-user-chip-h);
+  flex-shrink: 0;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-primary);
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tasks-page__tracking-filter-btn:hover {
+  color: var(--app-text-primary);
+  background: var(--app-bg-hover);
+}
+
+.tasks-page__tracking-filter-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+/* Suivi — icône filtre bien lisible en sombre */
+:root[data-theme='dark'] .tasks-page__tracking-filter-btn {
+  color: #ebe8e0;
+  border-color: rgba(240, 237, 230, 0.35);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-filter-btn:hover {
+  color: #f7f4ed;
+  background: var(--app-bg-hover);
+  border-color: rgba(240, 237, 230, 0.48);
+}
+
+.tasks-page__tracking-users {
+  display: flex;
+  gap: var(--app-space-2);
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 2px;
+}
+
+.tasks-page__tracking-users--loading {
+  align-items: center;
+}
+
+.tasks-page__tracking-user-skel {
+  flex-shrink: 0;
+  width: 200px;
+  height: 64px;
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-tertiary, rgba(0, 0, 0, 0.06));
+  animation: tasks-page-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tasks-page-pulse {
+  50% {
+    opacity: 0.65;
+  }
+}
+
+.tasks-page__tracking-user {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  min-width: 200px;
+  min-height: var(--tracking-user-chip-h, 64px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--app-radius-md);
+  border: 2px solid var(--app-border-tertiary);
+  background: var(--app-bg-primary);
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.tasks-page__tracking-user--selected {
+  border-color: var(--app-accent-primary, #3b82f6);
+  background: color-mix(in srgb, var(--app-accent-primary, #3b82f6) 12%, var(--app-bg-primary));
+}
+
+.tasks-page__tracking-user--off {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--app-bg-secondary);
+}
+
+.tasks-page__tracking-user-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tasks-page__tracking-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--app-radius-md);
+  object-fit: cover;
+}
+
+.tasks-page__tracking-user-avatar--gray {
+  filter: grayscale(1);
+}
+
+.tasks-page__tracking-user-avatar--st-working {
+  box-shadow: 0 0 0 3px #eab308;
+}
+
+.tasks-page__tracking-user-avatar--st-paused {
+  box-shadow: 0 0 0 3px #22c55e;
+}
+
+.tasks-page__tracking-user-avatar--st-route {
+  box-shadow: 0 0 0 3px #f97316;
+}
+
+.tasks-page__tracking-user-avatar--st-waiting {
+  box-shadow: 0 0 0 3px #9ca3af;
+}
+
+.tasks-page__tracking-user-off-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f97316;
+  color: #fff;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--app-bg-primary);
+}
+
+.tasks-page__tracking-user-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tasks-page__tracking-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tasks-page__tracking-user-name--muted {
+  color: var(--app-text-tertiary);
+}
+
+.tasks-page__tracking-user-profile {
+  font-size: 12px;
+  color: var(--app-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tasks-page__tracking-user-profile--leave {
+  color: #ea580c;
+  font-style: italic;
+}
+
+.tasks-page__tracking-user-check {
+  color: var(--app-accent-primary, #3b82f6);
+  font-weight: 700;
+}
+
+.tasks-page__tracking-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--app-space-4);
+  background: var(--app-bg-tertiary, #f7f7f7);
+}
+
+.tasks-page__tracking-err,
+.tasks-page__tracking-loading {
+  font-size: 14px;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__tracking-empty {
+  text-align: center;
+  padding: var(--app-space-6);
+}
+
+.tasks-page__tracking-empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 var(--app-space-2);
+}
+
+.tasks-page__tracking-empty-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--app-text-secondary);
+}
+
+.tasks-page__tracking-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.tasks-page__tracking-row {
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+}
+
+.tasks-page__tracking-rail {
+  position: relative;
+  width: 40px;
+  flex-shrink: 0;
+  margin-right: var(--app-space-2);
+  /* Match row height so the line can span the full gap between events (card is taller than the dot). */
+  align-self: stretch;
+}
+
+.tasks-page__tracking-line {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--app-accent-primary, #3b82f6);
+  z-index: 0;
+}
+
+.tasks-page__tracking-dot-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+}
+
+.tasks-page__tracking-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid var(--app-bg-primary);
+  box-sizing: border-box;
+}
+
+.tasks-page__tracking-dot--blue {
+  background: #3b82f6;
+}
+
+.tasks-page__tracking-dot--yellow {
+  background: #eab308;
+}
+
+.tasks-page__tracking-dot--orange {
+  background: #f97316;
+}
+
+.tasks-page__tracking-dot--gray {
+  background: #6b7280;
+}
+
+.tasks-page__tracking-dot--green {
+  background: #22c55e;
+}
+
+.tasks-page__tracking-dot--purple {
+  background: #a855f7;
+}
+
+.tasks-page__tracking-card {
+  flex: 1;
+  min-width: 0;
+  background: var(--app-bg-primary);
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  padding: var(--app-space-3);
+  margin-bottom: var(--app-space-2);
+}
+
+.tasks-page__tracking-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-2);
+  margin-bottom: var(--app-space-3);
+}
+
+.tasks-page__tracking-time {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.tasks-page__tracking-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+}
+
+.tasks-page__tracking-pill--blue {
+  background: color-mix(in srgb, #3b82f6 18%, transparent);
+  color: #1d4ed8;
+  border-color: #60a5fa;
+}
+
+.tasks-page__tracking-pill--yellow {
+  background: color-mix(in srgb, #eab308 22%, transparent);
+  color: #854d0e;
+  border-color: #eab308;
+}
+
+.tasks-page__tracking-pill--orange {
+  background: color-mix(in srgb, #f97316 22%, transparent);
+  color: #9a3412;
+  border-color: #fb923c;
+}
+
+.tasks-page__tracking-pill--gray {
+  background: color-mix(in srgb, #6b7280 22%, transparent);
+  color: #374151;
+  border-color: #9ca3af;
+}
+
+.tasks-page__tracking-pill--green {
+  background: color-mix(in srgb, #22c55e 22%, transparent);
+  color: #166534;
+  border-color: #4ade80;
+}
+
+.tasks-page__tracking-pill--purple {
+  background: color-mix(in srgb, #a855f7 22%, transparent);
+  color: #6b21a8;
+  border-color: #c084fc;
+}
+
+/* Timeline pills — texte = couleur de bordure (max. contraste sur fond sombre) */
+:root[data-theme='dark'] .tasks-page__tracking-pill--blue {
+  --tracking-pill-accent: #60a5fa;
+
+  background: color-mix(in srgb, var(--tracking-pill-accent) 32%, var(--app-bg-tertiary));
+  border-color: var(--tracking-pill-accent);
+  color: var(--tracking-pill-accent);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-pill--yellow {
+  --tracking-pill-accent: #facc15;
+
+  background: color-mix(in srgb, var(--tracking-pill-accent) 30%, var(--app-bg-tertiary));
+  border-color: var(--tracking-pill-accent);
+  color: var(--tracking-pill-accent);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-pill--orange {
+  --tracking-pill-accent: #fb923c;
+
+  background: color-mix(in srgb, var(--tracking-pill-accent) 32%, var(--app-bg-tertiary));
+  border-color: var(--tracking-pill-accent);
+  color: var(--tracking-pill-accent);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-pill--gray {
+  --tracking-pill-accent: #d1d5db;
+
+  background: color-mix(in srgb, #9ca3af 28%, var(--app-bg-tertiary));
+  border-color: var(--tracking-pill-accent);
+  color: var(--tracking-pill-accent);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-pill--green {
+  --tracking-pill-accent: #4ade80;
+
+  background: color-mix(in srgb, var(--tracking-pill-accent) 30%, var(--app-bg-tertiary));
+  border-color: var(--tracking-pill-accent);
+  color: var(--tracking-pill-accent);
+}
+
+:root[data-theme='dark'] .tasks-page__tracking-pill--purple {
+  --tracking-pill-accent: #c084fc;
+
+  background: color-mix(in srgb, var(--tracking-pill-accent) 30%, var(--app-bg-tertiary));
+  border-color: var(--tracking-pill-accent);
+  color: var(--tracking-pill-accent);
+}
+
+.tasks-page__tracking-card-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-3);
+  align-items: flex-start;
+}
+
+.tasks-page__tracking-desc {
+  flex: 1 1 55%;
+  min-width: 140px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--app-text-primary);
+}
+
+.tasks-page__tracking-client {
+  flex: 1 1 35%;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-secondary);
+  border: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.tasks-page__tracking-client-img {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--app-radius-sm);
+  object-fit: cover;
+}
+
+.tasks-page__tracking-client-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tasks-page__tracking-client-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tasks-page__tracking-client-city {
+  font-size: 12px;
+  color: var(--app-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

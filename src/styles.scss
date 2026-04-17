@@ -1,0 +1,199 @@
+/* Light: `ui-style-guide.json` → colors.light */
+:root {
+  --app-brand-primary: #d97757;
+  --app-brand-primary-hover: #c4673f;
+  --app-brand-primary-text: #ffffff;
+
+  --app-bg-primary: #ffffff;
+  --app-bg-secondary: #f5f4ef;
+  --app-bg-tertiary: #efede8;
+  --app-bg-sidebar: #f5f4ef;
+  --app-bg-hover: #eceae3;
+  --app-bg-active: #e5e2da;
+  --app-bg-input: #ffffff;
+
+  --app-text-primary: #1a1916;
+  --app-text-secondary: #6b6860;
+  --app-text-tertiary: #9b9a96;
+
+  --app-border-primary: rgba(26, 25, 22, 0.4);
+  --app-border-secondary: rgba(26, 25, 22, 0.3);
+  --app-border-tertiary: rgba(26, 25, 22, 0.15);
+  --app-border-subtle: rgba(26, 25, 22, 0.08);
+
+  --app-semantic-danger-bg: #fcebeb;
+  --app-semantic-danger-text: #a32d2d;
+  --app-semantic-warning-bg: #faeeda;
+  --app-semantic-warning-text: #854f0b;
+  --app-semantic-success-bg: #eaf3de;
+  --app-semantic-success-text: #116d2d;
+  --app-semantic-info-bg: #e6f1fb;
+  --app-semantic-info-text: #185fa5;
+
+  /*
+   * Task status strip (vertical bar) — darker accents.
+   * Tuned from a typical dark-theme syntax palette (coral, gold, salmon, lime, cyan, violet).
+   */
+  --app-task-strip-attente: #d4566a;
+  --app-task-strip-cours: #dcff14;
+  --app-task-strip-route: #c8834a;
+  --app-task-strip-pause: #00ff4c;
+  --app-task-strip-terminee: #3a8eb0;
+  --app-task-strip-annulee: #8f6bb8;
+  --app-task-strip-default: #6f6b63;
+
+  --app-sidebar-width: 260px;
+  --app-sidebar-collapsed-width: 52px;
+
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-5: 20px;
+  --app-space-6: 24px;
+  --app-space-8: 32px;
+
+  --app-radius-sm: 6px;
+  --app-radius-md: 8px;
+  --app-radius-lg: 12px;
+
+  --app-border-default: 0.5px solid;
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --app-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --app-shadow-focus: 0 0 0 2px rgba(217, 119, 87, 0.25);
+
+  --app-font-h2-size: 18px;
+  --app-font-label-size: 12px;
+  --app-font-weight-medium: 500;
+
+  --app-transition-fast: 120ms ease;
+
+  /* Modal / drawer scrim — keep fairly light so content behind stays readable */
+  --app-modal-backdrop: rgba(0, 0, 0, 0.18);
+}
+
+/* Dark theme — from `ui-style-guide.json` → colors.dark (+ shared brand, task strips) */
+:root[data-theme='dark'] {
+  --app-brand-primary: #d97757;
+  --app-brand-primary-hover: #c4673f;
+  --app-brand-primary-text: #ffffff;
+
+  --app-bg-primary: #1c1b18;
+  --app-bg-secondary: #262522;
+  --app-bg-tertiary: #2f2d29;
+  --app-bg-sidebar: #211f1b;
+  --app-bg-hover: #2f2d29;
+  --app-bg-active: #363430;
+  --app-bg-input: #2a2825;
+
+  --app-text-primary: #f0ede6;
+  --app-text-secondary: #a09e99;
+  --app-text-tertiary: #706e6a;
+
+  --app-border-primary: rgba(240, 237, 230, 0.4);
+  --app-border-secondary: rgba(240, 237, 230, 0.3);
+  --app-border-tertiary: rgba(240, 237, 230, 0.15);
+  --app-border-subtle: rgba(240, 237, 230, 0.08);
+
+  --app-semantic-danger-bg: #4a1515;
+  --app-semantic-danger-text: #f09595;
+  --app-semantic-warning-bg: #4a2c06;
+  --app-semantic-warning-text: #fac775;
+  --app-semantic-success-bg: #1a3a08;
+  --app-semantic-success-text: #97c459;
+  --app-semantic-info-bg: #0c3a6b;
+  --app-semantic-info-text: #85b7eb;
+
+  /* Task strips: not in style guide — tuned for dark surfaces */
+  --app-task-strip-attente: #e8667d;
+  --app-task-strip-cours: #e8ff4a;
+  --app-task-strip-route: #e4a070;
+  --app-task-strip-pause: #4dff7a;
+  --app-task-strip-terminee: #5cb3d4;
+  --app-task-strip-annulee: #a88fd4;
+  --app-task-strip-default: #9e9a93;
+
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --app-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
+  /* shadows.focusRing in ui-style-guide.json */
+  --app-shadow-focus: 0 0 0 2px rgba(217, 119, 87, 0.4);
+
+  --app-modal-backdrop: rgba(0, 0, 0, 0.26);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/*
+ * Scrollbars — same as semaine (`.cal-week__body`): fine rail, thumb = border tokens.
+ * Light/dark follow `--app-border-secondary` / `--app-border-primary` on hover.
+ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border-secondary) transparent;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  min-height: 100%;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border-secondary) transparent;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  background: var(--app-bg-primary);
+  color: var(--app-text-primary);
+}
+
+*::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--app-border-secondary);
+  border-radius: 2px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--app-border-primary);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
+/* Routed view fills main (sibling immediately after router-outlet). */
+.shell__main-inner > router-outlet + * {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}

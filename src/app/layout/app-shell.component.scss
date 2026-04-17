@@ -1,0 +1,366 @@
+.shell {
+  display: flex;
+  background: var(--app-bg-primary);
+  color: var(--app-text-primary);
+}
+
+/* Logged-in: fixed viewport height; only main scrolls */
+.shell:not(.shell--guest) {
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.shell--guest {
+  min-height: 100vh;
+}
+
+.shell--guest .shell__main {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--app-sidebar-width);
+  flex-shrink: 0;
+  height: 100vh;
+  min-height: 0;
+  /* No horizontal padding here so `.shell__user-bar` border-top can span full width. */
+  padding: var(--app-space-3) 0 0;
+  background: var(--app-bg-sidebar);
+  border-right: var(--app-border-default) var(--app-border-tertiary);
+  box-sizing: border-box;
+  overflow: hidden;
+  transition:
+    width 200ms ease,
+    padding 200ms ease;
+}
+
+.shell--sidebar-collapsed .shell__sidebar {
+  width: var(--app-sidebar-collapsed-width);
+}
+
+.shell__sidebar-header {
+  flex-shrink: 0;
+  margin-bottom: var(--app-space-2);
+  padding: 0 var(--app-space-2);
+  display: flex;
+  justify-content: flex-start;
+}
+
+.shell__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+}
+
+.shell__toggle:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+}
+
+.shell__toggle-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.shell__nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.shell__nav-label {
+  font-size: var(--app-font-label-size);
+  font-weight: var(--app-font-weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-tertiary);
+  padding: 6px 10px;
+  margin-top: var(--app-space-2);
+  margin-inline: var(--app-space-2);
+}
+
+.shell--sidebar-collapsed .shell__nav-label {
+  display: none;
+}
+
+.shell__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 8px 10px;
+  margin-inline: var(--app-space-2);
+  border-radius: var(--app-radius-md);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--app-text-secondary);
+  text-decoration: none;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+}
+
+.shell--sidebar-collapsed .shell__nav-item {
+  justify-content: center;
+  padding: 8px;
+  /* Match `.shell__sidebar-header` horizontal inset so icon aligns with the toggle. */
+  margin-inline: var(--app-space-2);
+}
+
+.shell__nav-item:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+}
+
+.shell__nav-item--active {
+  background: var(--app-bg-active);
+  color: var(--app-text-primary);
+  font-weight: 500;
+}
+
+.shell__nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.shell__nav-text {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.shell--sidebar-collapsed .shell__nav-text {
+  display: none;
+}
+
+.shell__main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--app-space-8) var(--app-space-6);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.shell:not(.shell--guest) .shell__main {
+  overflow: hidden;
+}
+
+.shell__main--guest {
+  overflow-y: auto;
+}
+
+.shell__main-inner {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell:not(.shell--guest) .shell__main-inner {
+  overflow: hidden;
+}
+
+.shell__user-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  margin-top: auto;
+  padding: var(--app-space-3) var(--app-space-2);
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+  border-radius: 0;
+}
+
+.shell--sidebar-collapsed .shell__user-bar {
+  /* Logout above avatar (DOM order is user-main then button). */
+  flex-direction: column-reverse;
+  padding: var(--app-space-2) var(--app-space-1);
+  gap: var(--app-space-2);
+}
+
+.shell__user-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.shell--sidebar-collapsed .shell__user-main {
+  justify-content: center;
+  flex: 0;
+}
+
+.shell--sidebar-collapsed .shell__user-text {
+  display: none;
+}
+
+.shell__avatar {
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-text-secondary);
+  color: var(--app-brand-primary-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.shell__avatar--img {
+  object-fit: cover;
+  padding: 0;
+  background: none;
+  /* Keep photo corners matching the frame (not circular). */
+  border-radius: var(--app-radius-md);
+}
+
+.shell__user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.shell__user-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--app-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shell__user-sub {
+  font-size: 12px;
+  color: var(--app-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shell__logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-primary);
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--app-transition-fast),
+    color var(--app-transition-fast),
+    border-color var(--app-transition-fast);
+}
+
+.shell__logout-btn:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+  border-color: var(--app-border-secondary);
+}
+
+.shell__logout-btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Right rail: same width vibe as collapsed sidebar, icon-only actions */
+.shell__rail {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: var(--app-sidebar-collapsed-width);
+  height: 100vh;
+  min-height: 0;
+  padding: var(--app-space-3) 0 var(--app-space-2);
+  box-sizing: border-box;
+  background: var(--app-bg-sidebar);
+  border-left: var(--app-border-default) var(--app-border-tertiary);
+  overflow: hidden;
+  /* Stay above tasks-page fixed filter overlay (z-index 20/30) */
+  position: relative;
+  z-index: 50;
+}
+
+.shell__rail-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--app-space-2);
+  padding: 0 var(--app-space-2);
+}
+
+.shell__rail-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--app-space-2) var(--app-space-2) 0;
+  margin-top: auto;
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.shell__rail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+}
+
+.shell__rail-btn:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+}
+
+.shell__rail-btn--active {
+  background: var(--app-bg-active);
+  color: var(--app-text-primary);
+}
+
+.shell__rail-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

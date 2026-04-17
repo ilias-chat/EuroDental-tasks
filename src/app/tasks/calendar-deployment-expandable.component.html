@@ -1,0 +1,53 @@
+<div class="cal-dep-exp">
+  <div
+    class="cal-dep-exp__header-wrap"
+    role="button"
+    tabindex="0"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-label]="headerTitle()"
+    (click)="toggle()"
+    (keydown)="onHeaderKeydown($event)"
+  >
+    <div [class]="headerClasses()">
+      <svg class="cal-dep-exp__plane" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+        <path
+          d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+        />
+      </svg>
+      <div class="cal-dep-exp__mid">
+        <span class="cal-dep-exp__title" [attr.title]="deployment.title?.trim() || 'Déploiement'">{{
+          deployment.title?.trim() || 'Déploiement'
+        }}</span>
+        @if (deployment.city_name?.trim(); as cityLabel) {
+          <span class="cal-dep-exp__city">{{ cityLabel }}</span>
+        }
+      </div>
+      <div class="cal-dep-exp__right">
+        <span class="cal-dep-exp__count">{{ tasksToShow().length }}</span>
+        <svg
+          class="cal-dep-exp__chevron"
+          [class.cal-dep-exp__chevron--open]="expanded()"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  @if (expanded()) {
+    <div class="cal-dep-exp__body">
+      @for (t of tasksToShow(); track t.id) {
+        <app-calendar-task-card [task]="t" />
+      } @empty {
+        <p class="cal-dep-exp__empty">Aucune tâche</p>
+      }
+    </div>
+  }
+</div>

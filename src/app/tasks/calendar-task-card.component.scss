@@ -1,0 +1,203 @@
+:host {
+  display: block;
+  margin-bottom: var(--app-space-2);
+}
+
+.cal-task-card {
+  --cal-task-strip-color: var(--app-task-strip-default);
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-primary);
+  overflow: hidden;
+}
+
+/* Status accent — horizontal bar at top, inset from card border */
+.cal-task-card__status-bar {
+  flex-shrink: 0;
+  align-self: stretch;
+  height: 4px;
+  margin: var(--app-space-1) var(--app-space-2) 0;
+  border-radius: 2px;
+  background: var(--cal-task-strip-color);
+}
+
+.cal-task-card__body {
+  flex: 1;
+  min-width: 0;
+  padding: var(--app-space-2);
+}
+
+.cal-task-card__deployment-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--app-text-tertiary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.cal-task-card__title {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--app-text-primary);
+  line-height: 1.35;
+  margin-bottom: var(--app-space-2);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  word-break: break-word;
+}
+
+.cal-task-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: var(--app-space-2);
+}
+
+.cal-task-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  border-radius: 4px;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+/* Payé / non payé / urgent / admin — alignés sur les accents du mois (vert facture, rouge attente, bleu admin) */
+.cal-task-card__badge--paid {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.cal-task-card__badge--unpaid {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.cal-task-card__badge--urgent {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.cal-task-card__badge--admin-delivery {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.cal-task-card__visit-dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--app-semantic-info-text);
+  animation: cal-task-card-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes cal-task-card-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+.cal-task-card__admin-delivery {
+  margin-bottom: var(--app-space-2);
+}
+
+.cal-task-card__tech-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-bg-secondary);
+  margin-bottom: var(--app-space-2);
+}
+
+.cal-task-card__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--app-radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  border: var(--app-border-default) var(--app-border-subtle);
+}
+
+.cal-task-card__tech-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--app-text-primary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-task-card__tech-name--missing {
+  color: var(--app-brand-primary-hover);
+}
+
+.cal-task-card__desc-block {
+  margin-bottom: var(--app-space-2);
+  min-height: 2.25rem;
+}
+
+.cal-task-card__description {
+  margin: 0;
+  width: 100%;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--app-text-secondary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.cal-task-card__description--empty {
+  color: var(--app-text-tertiary);
+  font-style: italic;
+}
+
+:host-context([data-theme='dark']) {
+  .cal-task-card__badge--paid {
+    background: rgba(34, 197, 94, 0.12);
+    color: #86efac;
+    border-color: rgba(74, 222, 128, 0.35);
+  }
+
+  .cal-task-card__badge--unpaid,
+  .cal-task-card__badge--urgent {
+    background: rgba(239, 68, 68, 0.14);
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.4);
+  }
+
+  .cal-task-card__badge--admin-delivery {
+    background: rgba(59, 130, 246, 0.14);
+    color: #60a5fa;
+    border-color: rgba(96, 165, 250, 0.4);
+  }
+}
