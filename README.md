@@ -1,59 +1,71 @@
-# TasksApp
+# Tasks App
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.6.
+Frontend task management application built with Angular.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- Angular 21 (standalone components, Router, HttpClient)
+- TypeScript
+- SCSS
+- RxJS
+- date-fns (date and calendar formatting)
+- Node.js + npm
 
-```bash
-ng serve
-```
+## Prerequisites
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Node.js 20+ (LTS recommended)
+- npm 10+
+- Backend API running and reachable from this frontend
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Clone and Run (Quick Start)
 
 ```bash
-ng generate --help
+git clone <your-repository-url>
+cd <repo-root>/frontend/tasks-app
+npm install
+npm start
 ```
 
-## Building
+Then open:
 
-To build the project run:
+- `http://localhost:4200/`
 
-```bash
-ng build
-```
+## Run Locally (Detailed Steps)
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+1. **Clone the repository**
+   ```bash
+   git clone <your-repository-url>
+   ```
+2. **Enter the frontend app folder**
+   ```bash
+   cd <repo-root>/frontend/tasks-app
+   ```
+3. **Install dependencies**
+   ```bash
+   npm install
+   ```
+4. **Check environment configuration**
+   - Review:
+     - `src/environments/environment.ts`
+     - `src/environments/environment.development.ts`
+   - Ensure `apiBaseUrl` points to your backend API.
+5. **Start the development server**
+   ```bash
+   npm start
+   ```
+6. **Open the app in browser**
+   - `http://localhost:4200/`
 
-## Running unit tests
+## Useful Commands
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- Start dev server: `npm start`
+- Build app: `npm run build`
+- Run tests: `npm test`
 
-```bash
-ng test
-```
+## Notes
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- The app expects a running backend for authentication and tasks API endpoints.
+- If the page is blank, check:
+  - Terminal output from `npm start`
+  - Browser console errors
+  - API URL configuration in environment files
