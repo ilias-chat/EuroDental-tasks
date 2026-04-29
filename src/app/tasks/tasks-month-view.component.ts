@@ -14,6 +14,7 @@ import { TasksCalendarStore } from '../core/state/tasks-calendar.store';
 
 export interface MonthDayLine {
   id: string;
+  taskId?: number;
   text: string;
   kind: 'deployment' | 'task';
   urgent: boolean;
@@ -99,6 +100,7 @@ export class TasksMonthViewComponent {
       const name = t.task_name?.trim() || 'Tâche';
       lines.push({
         id: `${key}-task-${t.id}`,
+        taskId: t.id,
         text: name,
         kind: 'task',
         urgent: !!t.urgent,
@@ -109,5 +111,11 @@ export class TasksMonthViewComponent {
       });
     }
     return lines;
+  }
+
+  openTaskDetails(line: MonthDayLine): void {
+    if (line.kind === 'task' && line.taskId != null) {
+      this.store.openTaskDetailsModal(line.taskId);
+    }
   }
 }

@@ -3,11 +3,14 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from '../core/services/auth.service';
 import { ThemeService } from '../core/services/theme.service';
 import { TasksCalendarStore } from '../core/state/tasks-calendar.store';
+import { CreateTaskModalComponent } from '../tasks/create-task-modal/create-task-modal.component';
+import { TaskDetailsModalComponent } from '../tasks/task-details-modal/task-details-modal.component';
+import { ToastContainerComponent } from '../shared/toast-container.component';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CreateTaskModalComponent, TaskDetailsModalComponent, ToastContainerComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })
@@ -33,7 +36,8 @@ export class AppShellComponent implements OnInit {
   }
 
   onRailNewTask(): void {
-    this.tasksStore.requestNewTask();
+    const date = new Date().toISOString().slice(0, 10);
+    this.tasksStore.openCreateTaskModal(date);
   }
 
   onRailToggleFilter(): void {

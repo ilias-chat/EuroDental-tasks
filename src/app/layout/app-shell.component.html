@@ -159,4 +159,10 @@
       </div>
     </aside>
   }
+
+  @if (auth.isAuthenticated()) {
+    <app-create-task-modal />
+    <app-task-details-modal />
+    <app-toast-container />
+  }
 </div>

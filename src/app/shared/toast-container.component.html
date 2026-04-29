@@ -1,0 +1,12 @@
+<div class="toast" aria-live="polite" aria-atomic="true">
+  @for (t of toast.items(); track t.id) {
+    <div
+      class="toast__item"
+      [class]="'toast__item toast__item--' + t.kind + (t.leaving ? ' toast__item--leaving' : '')"
+      [style.--toast-duration.ms]="t.durationMs"
+    >
+      <span class="toast__text">{{ t.text }}</span>
+      <button type="button" class="toast__close" (click)="toast.dismiss(t.id)" aria-label="Fermer">×</button>
+    </div>
+  }
+</div>

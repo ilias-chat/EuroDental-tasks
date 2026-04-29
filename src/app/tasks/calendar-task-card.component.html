@@ -1,6 +1,10 @@
 <div
   class="cal-task-card"
   [style.--cal-task-strip-color]="taskStatusStripVar(task.status)"
+  role="button"
+  tabindex="0"
+  (click)="openDetails()"
+  (keydown.enter)="openDetails()"
 >
   <span class="cal-task-card__status-bar" aria-hidden="true"></span>
   <div class="cal-task-card__body">

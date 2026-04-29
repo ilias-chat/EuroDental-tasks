@@ -40,7 +40,14 @@
             </li>
           } @else {
             <li class="cal-month__task-item">
-              <div [class]="taskCardClasses(line)" [attr.title]="line.text">
+              <div
+                [class]="taskCardClasses(line)"
+                [attr.title]="line.text"
+                role="button"
+                tabindex="0"
+                (click)="openTaskDetails(line)"
+                (keydown.enter)="openTaskDetails(line)"
+              >
                 <div class="cal-month__task-top">
                   <span class="cal-month__task-name">{{ line.text }}</span>
                   @if (line.isPaid) {

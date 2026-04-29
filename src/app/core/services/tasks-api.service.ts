@@ -61,6 +61,145 @@ export interface TrackingEventRow {
 
 export type TrackingUserView = TrackingUserRow & { available: boolean };
 
+export interface CreateTaskTypeRow {
+  id: number;
+  name: string;
+}
+
+export interface CreateTaskUserRow {
+  id: number;
+  first_name: string;
+  last_name: string;
+  image: { image_name: string } | null;
+  available: boolean;
+  leave_requests: { start_date: string; end_date: string }[];
+}
+
+export interface CreateTaskTechnicianRow {
+  id: number;
+  name: string;
+  image: string | null;
+  available: boolean;
+}
+
+export interface CreateTaskClientRow {
+  id: number;
+  name: string;
+  image: string | null;
+  city: string | null;
+}
+
+export interface CreateTaskPayload {
+  task_name: string;
+  task_type: string;
+  description: string;
+  urgent: boolean;
+  task_date: string;
+  technician_id: number | null;
+  client_id: number | null;
+  helping_user_ids: number[];
+}
+
+export interface TaskDetailsEventRow {
+  id: number;
+  event_type: string;
+  event_time: string | null;
+  event_time_label: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  user_id: number | null;
+  user_name: string | null;
+  user_image: string | null;
+}
+
+export interface TaskDetailsServiceRow {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number | null;
+}
+
+export interface TaskDetailsServicePropositionRow {
+  id: number;
+  name: string;
+  status: string;
+  proposed_by: number | null;
+  proposed_by_name: string | null;
+  created_at: string | null;
+}
+
+export interface TaskDetailsWarrantyRow {
+  id: number;
+  product_name: string;
+  category: string | null;
+  purchase_date: string | null;
+  warranty_expiry: string | null;
+  warranty_status: string | null;
+  days_left_in_warranty: string;
+  serial_number: string | null;
+}
+
+export interface TaskDetailsRow {
+  id: number;
+  client_id: number | null;
+  task_name: string;
+  task_type: string | null;
+  description: string | null;
+  status: string;
+  current_visit_status: string | null;
+  has_ongoing_visit: boolean;
+  urgent: boolean;
+  task_date: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  is_paid: boolean;
+  amount_paid: number | null;
+  admin_delivery_amount: number | null;
+  admin_delivery_task_id: number | null;
+  admin_delivery_received_by_user_id: number | null;
+  admin_delivery_received_by_user_name: string | null;
+  hourly_rate: number | null;
+  technician_id: number | null;
+  technician_name: string | null;
+  technician_image: string | null;
+  technician: { id: number; name: string; image: string | null } | null;
+  helping_users: Array<{ id: number; name: string; image: string | null }>;
+  client_name: string | null;
+  client_city: string | null;
+  client_image: string | null;
+  services: TaskDetailsServiceRow[];
+  service_propositions: TaskDetailsServicePropositionRow[];
+  task_products: Array<{ id: number; product_name: string; quantity: number }>;
+  events: TaskDetailsEventRow[];
+}
+
+export interface UpdateTaskDescriptionResponse {
+  success: boolean;
+  message: string;
+  description: string | null;
+}
+
+export interface UpdateTaskPaymentResponse {
+  success: boolean;
+  message: string;
+  task?: {
+    id: number;
+    is_paid: boolean;
+    amount_paid: number | null;
+  };
+}
+
+export interface UpdateTaskAdminDeliveryPaymentResponse {
+  success: boolean;
+  message: string;
+  task?: {
+    id: number;
+    admin_delivery_amount: number | null;
+    admin_delivery_task_id: number | null;
+  };
+  delivery_task_id?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TasksApiService {
   private readonly http = inject(HttpClient);
@@ -85,6 +224,71 @@ export class TasksApiService {
     return this.http.get<{ success: boolean; tracking: TrackingEventRow[] }>(
       `${environment.apiBaseUrl}/tasks/tracking/${userId}`,
       { params: { date } },
+    );
+  }
+
+  getCreateTaskTypes(): Observable<{ types: CreateTaskTypeRow[] }> {
+    return this.http.get<{ types: CreateTaskTypeRow[] }>(`${environment.apiBaseUrl}/tasks/create/task-types`);
+  }
+
+  getCreateTaskClients(): Observable<{ clients: CreateTaskClientRow[] }> {
+    return this.http.get<{ clients: CreateTaskClientRow[] }>(`${environment.apiBaseUrl}/tasks/create/clients`);
+  }
+
+  getCreateTaskTechnicians(taskDate: string): Observable<CreateTaskTechnicianRow[]> {
+    return this.http.get<CreateTaskTechnicianRow[]>(`${environment.apiBaseUrl}/tasks/create/technicians`, {
+      params: { task_date: taskDate },
+    });
+  }
+
+  getCreateTaskUsers(taskDate: string): Observable<{ success: boolean; users: CreateTaskUserRow[] }> {
+    return this.http.get<{ success: boolean; users: CreateTaskUserRow[] }>(`${environment.apiBaseUrl}/tasks/create/users`, {
+      params: { task_date: taskDate },
+    });
+  }
+
+  createTask(payload: CreateTaskPayload): Observable<{ success: boolean; message: string; task: any }> {
+    return this.http.post<{ success: boolean; message: string; task: any }>(`${environment.apiBaseUrl}/tasks`, payload);
+  }
+
+  getTaskDetails(taskId: number): Observable<{ success: boolean; task: TaskDetailsRow }> {
+    return this.http.get<{ success: boolean; task: TaskDetailsRow }>(`${environment.apiBaseUrl}/tasks/${taskId}`);
+  }
+
+  updateTaskDescription(taskId: number, description: string): Observable<UpdateTaskDescriptionResponse> {
+    return this.http.post<UpdateTaskDescriptionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/update-description`, {
+      description,
+    });
+  }
+
+  updateTaskPayment(taskId: number, amountPaid: number): Observable<UpdateTaskPaymentResponse> {
+    return this.http.post<UpdateTaskPaymentResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/payment`, {
+      amount_paid: amountPaid,
+    });
+  }
+
+  updateTaskAdminDeliveryPayment(
+    taskId: number,
+    amount: number,
+    deliveryDate?: string | null,
+  ): Observable<UpdateTaskAdminDeliveryPaymentResponse> {
+    return this.http.post<UpdateTaskAdminDeliveryPaymentResponse>(
+      `${environment.apiBaseUrl}/tasks/${taskId}/admin-delivery-payment`,
+      {
+        amount,
+        delivery_date: deliveryDate || undefined,
+      },
+    );
+  }
+
+  getClientWarrantyProducts(
+    clientId: number,
+    page = 1,
+    limit = 100,
+  ): Observable<{ success: boolean; products: TaskDetailsWarrantyRow[] }> {
+    return this.http.get<{ success: boolean; products: TaskDetailsWarrantyRow[] }>(
+      `${environment.apiBaseUrl}/clients/${clientId}/products`,
+      { params: { page: String(page), limit: String(limit) } },
     );
   }
 }

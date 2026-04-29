@@ -73,6 +73,18 @@ export class TasksCalendarStore {
     return this._paymentsDrawerOpen();
   }
 
+  private readonly _createTaskDrawerOpen = signal(false);
+  private readonly _taskDetailsDrawerOpen = signal(false);
+  readonly selectedTaskDetailsId = signal<number | null>(null);
+
+  createTaskDrawerOpen(): boolean {
+    return this._createTaskDrawerOpen();
+  }
+
+  taskDetailsDrawerOpen(): boolean {
+    return this._taskDetailsDrawerOpen();
+  }
+
   private readonly _trackingDrawerOpen = signal(false);
   readonly trackingUsers = signal<TrackingUserView[]>([]);
   readonly trackingUsersLoading = signal(false);
@@ -100,6 +112,8 @@ export class TasksCalendarStore {
    * Subscribe (e.g. `effect` in tasks page) to open a form or navigate.
    */
   readonly newTaskRequestSeq = signal(0);
+  private readonly createTaskModalTicketSignal = signal(0);
+  private readonly createTaskModalDateSignal = signal(format(new Date(), 'yyyy-MM-dd'));
   readonly hasActiveFilters = computed(() => {
     const f = this.filters();
     return !!(f.technicianId || f.clientId || f.status || f.taskType || f.paid);
@@ -368,6 +382,8 @@ export class TasksCalendarStore {
 
   toggleFilterPanel(): void {
     this._paymentsDrawerOpen.set(false);
+    this._createTaskDrawerOpen.set(false);
+    this._taskDetailsDrawerOpen.set(false);
     this.filterPanelOpen.update((open) => !open);
   }
 
@@ -382,6 +398,8 @@ export class TasksCalendarStore {
     }
     this.filterPanelOpen.set(false);
     this._trackingDrawerOpen.set(false);
+    this._createTaskDrawerOpen.set(false);
+    this._taskDetailsDrawerOpen.set(false);
     this._paymentsDrawerOpen.set(true);
     void this.loadDeliveredPayments(1);
   }
@@ -432,6 +450,8 @@ export class TasksCalendarStore {
     }
     this.filterPanelOpen.set(false);
     this._paymentsDrawerOpen.set(false);
+    this._createTaskDrawerOpen.set(false);
+    this._taskDetailsDrawerOpen.set(false);
     this._trackingDrawerOpen.set(true);
     if (this.trackingUsers().length === 0) {
       void this.loadTrackingUsers();
@@ -579,5 +599,126 @@ export class TasksCalendarStore {
 
   requestNewTask(): void {
     this.newTaskRequestSeq.update((n) => n + 1);
+  }
+
+  createTaskModalTicket(): number {
+    return this.createTaskModalTicketSignal();
+  }
+
+  createTaskModalDate(): string {
+    return this.createTaskModalDateSignal();
+  }
+
+  openCreateTaskModal(date: string): void {
+    this.closeFilterPanel();
+    this.closeDeliveredPaymentsPanel();
+    this.closeTrackingDrawer();
+    this.closeTaskDetailsModal();
+    this._createTaskDrawerOpen.set(true);
+    this.createTaskModalDateSignal.set(date);
+    this.createTaskModalTicketSignal.update((n) => n + 1);
+  }
+
+  closeCreateTaskModal(): void {
+    this._createTaskDrawerOpen.set(false);
+  }
+
+  openTaskDetailsModal(taskId: number): void {
+    this.closeFilterPanel();
+    this.closeDeliveredPaymentsPanel();
+    this.closeTrackingDrawer();
+    this.closeCreateTaskModal();
+    this.selectedTaskDetailsId.set(taskId);
+    this._taskDetailsDrawerOpen.set(true);
+  }
+
+  closeTaskDetailsModal(): void {
+    this._taskDetailsDrawerOpen.set(false);
+    this.selectedTaskDetailsId.set(null);
+  }
+
+  /**
+   * Insert newly created standalone task into in-memory calendar without full refetch.
+   * Only inserts when task date is inside currently loaded month grid range.
+   */
+  insertCreatedTask(row: CalendarTaskRow): void {
+    const payload = this.calendarPayload();
+    if (!payload) {
+      return;
+    }
+    if (row.deployment_id != null) {
+      return;
+    }
+    const date = String(row.task_date ?? '').slice(0, 10);
+    if (!date || !this.isDateInLoadedRange(date)) {
+      return;
+    }
+
+    const current = payload.tasks?.[date] ?? [];
+    if (current.some((t) => t.id === row.id)) {
+      return;
+    }
+
+    const nextTasks = { ...(payload.tasks ?? {}) };
+    nextTasks[date] = [row, ...current];
+
+    const nextMeta = payload.meta
+      ? {
+          ...payload.meta,
+          technicians: this.upsertMetaPerson(payload.meta.technicians ?? [], row.technician_id, row.technician_name, row.technician_image ?? null),
+          clients: this.upsertMetaPerson(payload.meta.clients ?? [], row.client_id, row.client_name, row.client_image ?? null),
+          task_types: this.upsertMetaTaskType(payload.meta.task_types ?? [], row.task_type),
+        }
+      : payload.meta;
+
+    this.calendarPayload.set({
+      ...payload,
+      tasks: nextTasks,
+      meta: nextMeta,
+    });
+  }
+
+  private isDateInLoadedRange(dateYmd: string): boolean {
+    const key = this.loadedRangeKey();
+    if (!key) {
+      return false;
+    }
+    const [start, end] = key.split('|');
+    if (!start || !end) {
+      return false;
+    }
+    return dateYmd >= start && dateYmd <= end;
+  }
+
+  private upsertMetaPerson(
+    list: { id: number; name: string; image: string | null }[],
+    id: number | null,
+    name: string | null,
+    image: string | null,
+  ): { id: number; name: string; image: string | null }[] {
+    if (id == null) {
+      return list;
+    }
+    if (list.some((x) => x.id === id)) {
+      return list;
+    }
+    return [...list, { id, name: name?.trim() || 'Utilisateur', image: image ?? null }].sort((a, b) =>
+      a.name.localeCompare(b.name, 'fr'),
+    );
+  }
+
+  private upsertMetaTaskType(
+    list: { id: number; name: string }[],
+    taskType: string | null,
+  ): { id: number; name: string }[] {
+    const name = taskType?.trim();
+    if (!name) {
+      return list;
+    }
+    if (list.some((x) => x.name === name)) {
+      return list;
+    }
+    const syntheticId = list.length > 0 ? Math.min(...list.map((x) => x.id)) - 1 : -1;
+    return [...list, { id: syntheticId, name }].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
   }
 }

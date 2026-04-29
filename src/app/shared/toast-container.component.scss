@@ -1,0 +1,130 @@
+.toast {
+  position: fixed;
+  right: calc(var(--app-sidebar-collapsed-width) + 12px);
+  bottom: 14px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast__item {
+  pointer-events: auto;
+  min-width: 250px;
+  max-width: min(420px, calc(100vw - 90px));
+  border-radius: var(--app-radius-md);
+  border: 1px solid;
+  padding: 9px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  box-shadow: var(--app-shadow-md);
+  position: relative;
+  overflow: hidden;
+  animation: toast-in 220ms ease;
+}
+
+.toast__item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.35;
+  transform-origin: left center;
+  animation: toast-timer var(--toast-duration, 3200ms) linear forwards;
+}
+
+.toast__item--leaving {
+  animation: toast-out 180ms ease forwards;
+}
+
+.toast__item--leaving::after {
+  animation-play-state: paused;
+}
+
+.toast__text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.toast__close {
+  border: none;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+}
+
+.toast__item--success {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.toast__item--error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.toast__item--info {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+:host-context([data-theme='dark']) .toast__item--success {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(74, 222, 128, 0.35);
+  color: #86efac;
+}
+
+:host-context([data-theme='dark']) .toast__item--error {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #fecaca;
+}
+
+:host-context([data-theme='dark']) .toast__item--info {
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #93c5fd;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+@keyframes toast-timer {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

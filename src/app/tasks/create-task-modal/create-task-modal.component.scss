@@ -1,0 +1,479 @@
+/* Mirrors the filter modal (.tasks-page__filters-*) styles 1:1.
+   Class names changed to .create-task__* but values are identical. */
+
+.create-task {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.create-task--open {
+  pointer-events: auto;
+}
+
+.create-task__backdrop {
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  left: var(--app-sidebar-width);
+  background: var(--app-modal-backdrop);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+  z-index: 20;
+}
+
+.create-task--open .create-task__backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+:host-context(.shell--sidebar-collapsed) .create-task__backdrop {
+  left: var(--app-sidebar-collapsed-width);
+}
+
+.create-task__panel {
+  position: fixed;
+  top: 0;
+  right: var(--app-sidebar-collapsed-width);
+  bottom: 0;
+  width: min(56rem, calc(100vw - var(--app-sidebar-width) - var(--app-sidebar-collapsed-width)));
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg-primary);
+  border-left: var(--app-border-default) var(--app-border-tertiary);
+  box-shadow: none;
+  transform: translateX(calc(100% + 28px));
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease;
+  z-index: 30;
+}
+
+.create-task--open .create-task__panel {
+  transform: translateX(0);
+  box-shadow: var(--app-shadow-md);
+}
+
+@media (max-width: 1100px) {
+  .create-task__panel {
+    width: min(56rem, calc(100vw - var(--app-sidebar-collapsed-width)));
+  }
+}
+
+/* Header â identical to .tasks-page__filters-header */
+.create-task__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  padding: var(--app-space-3);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+}
+
+.create-task__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--app-text-primary);
+}
+
+.create-task__close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--app-text-secondary);
+  cursor: pointer;
+  transition: background var(--app-transition-fast), color var(--app-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-task__close:hover {
+  background: var(--app-bg-hover);
+  color: var(--app-text-primary);
+}
+
+.create-task__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Body */
+.create-task__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--app-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+}
+
+.create-task__error {
+  margin: 0;
+  color: var(--app-text-danger, #b91c1c);
+  font-size: 13px;
+}
+
+.create-task__form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.create-task__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--app-space-4);
+  min-height: 0;
+}
+
+@media (max-width: 1100px) {
+  .create-task__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.create-task__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-4);
+  min-height: 0;
+}
+
+/* Field â mirrors .tasks-page__filter-group */
+.create-task__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+}
+
+.create-task__field--grow {
+  flex: 1;
+  min-height: 0;
+}
+
+.create-task__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--app-text-secondary);
+}
+
+/* Inputs / selects â mirror .tasks-page__filter-trigger / .tasks-page__filter-select */
+.create-task__input,
+.create-task__select,
+.create-task__trigger {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.create-task__input {
+  padding: 0 12px;
+}
+
+.create-task__select {
+  padding: 0 10px;
+}
+
+.create-task__trigger {
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+.create-task__chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--app-text-tertiary);
+  transition: transform 140ms ease;
+  flex-shrink: 0;
+}
+
+.create-task__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown â mirrors .tasks-page__filter-dropdown */
+.create-task__dropdown {
+  position: relative;
+}
+
+/* Menu â mirrors .tasks-page__filter-menu */
+.create-task__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  border: var(--app-border-default) var(--app-border-secondary);
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-primary);
+  box-shadow: var(--app-shadow-md);
+  overflow: hidden;
+}
+
+.create-task__search-wrap {
+  padding: var(--app-space-2);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.create-task__search {
+  width: 100%;
+  height: 34px;
+  padding: 8px 10px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.create-task__menu-list {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.create-task__item {
+  width: 100%;
+  min-height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--app-text-primary);
+  font-size: 14px;
+  padding: 7px 10px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.create-task__item:hover:not(:disabled) {
+  background: var(--app-bg-hover);
+}
+
+.create-task__item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-task__item small {
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+}
+
+.create-task__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--app-radius-sm);
+  object-fit: cover;
+  border: var(--app-border-default) var(--app-border-secondary);
+  flex-shrink: 0;
+}
+
+.create-task__loading {
+  margin: 6px 0;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--app-text-secondary);
+}
+
+/* Textarea */
+.create-task__textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 200px;
+  padding: 10px 12px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+/* Toolbar */
+.create-task__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.create-task__toolbar button {
+  width: 32px;
+  height: 30px;
+  border-radius: var(--app-radius-sm);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-secondary);
+  color: var(--app-text-primary);
+  cursor: pointer;
+}
+
+/* Urgent checkbox */
+.create-task__urgent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.create-task__urgent input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Helping users wrapper */
+.create-task__help-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+}
+
+.create-task__chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--app-bg-secondary);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-md);
+  font-size: 13px;
+  color: var(--app-text-primary);
+}
+
+.create-task__chip button {
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--app-text-tertiary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--app-radius-sm);
+}
+
+.create-task__chip button:hover {
+  background: var(--app-bg-hover);
+  color: #dc2626;
+}
+
+.create-task__chip button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.create-task__add-btn {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: transparent;
+  color: var(--app-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+}
+
+.create-task__add-btn:hover {
+  background: var(--app-bg-hover);
+}
+
+.create-task__help-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.create-task__help-btn {
+  flex: 1;
+  height: 34px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: transparent;
+  color: var(--app-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.create-task__help-btn:hover:not(:disabled) {
+  background: var(--app-bg-hover);
+}
+
+.create-task__help-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Footer â mirrors .tasks-page__filters-footer */
+.create-task__footer {
+  flex-shrink: 0;
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+  padding: var(--app-space-3);
+  display: flex;
+  gap: var(--app-space-2);
+}
+
+.create-task__footer-btn {
+  flex: 1;
+  width: 100%;
+  height: 36px;
+  border-radius: var(--app-radius-md);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: transparent;
+  color: var(--app-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.create-task__footer-btn:hover:not(:disabled) {
+  background: var(--app-bg-hover);
+}
+
+.create-task__footer-btn--primary {
+  background: var(--app-accent-primary, #2563eb);
+  color: #fff;
+  border-color: var(--app-accent-primary, #2563eb);
+}
+
+.create-task__footer-btn--primary:hover:not(:disabled) {
+  background: var(--app-accent-primary-hover, #1d4ed8);
+  border-color: var(--app-accent-primary-hover, #1d4ed8);
+}
+
+.create-task__footer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

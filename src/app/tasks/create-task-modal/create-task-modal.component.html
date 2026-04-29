@@ -1,0 +1,228 @@
+<div class="create-task" [class.create-task--open]="store.createTaskDrawerOpen()">
+  <div class="create-task__backdrop" (click)="close()" aria-hidden="true"></div>
+
+  <aside class="create-task__panel" aria-label="Crer une nouvelle tche">
+    <header class="create-task__header">
+      <h3 class="create-task__title">Crer une nouvelle tche</h3>
+      <button
+        type="button"
+        class="create-task__close"
+        (click)="close()"
+        title="Fermer"
+        aria-label="Fermer"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <div class="create-task__body">
+      @if (error()) {
+        <p class="create-task__error">{{ error() }}</p>
+      }
+
+      <form (ngSubmit)="submit()" class="create-task__form">
+        <div class="create-task__grid">
+          <section class="create-task__col">
+            <div class="create-task__field">
+              <label class="create-task__label">Nom de la tche *</label>
+              <input class="create-task__input" type="text" [ngModel]="taskName()" (ngModelChange)="taskName.set($event)" name="taskName" required />
+            </div>
+
+            <div class="create-task__field">
+              <label class="create-task__label">Type de tche *</label>
+              <select class="create-task__select" [ngModel]="taskType()" (ngModelChange)="taskType.set($event)" name="taskType" required>
+                <option value="">Slectionner un type</option>
+                @for (type of taskTypes(); track type.id) {
+                  <option [value]="type.name">{{ type.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="create-task__field">
+              <label class="create-task__label">Date *</label>
+              <input class="create-task__input" type="date" [ngModel]="taskDate()" (ngModelChange)="onDateChange($event)" name="taskDate" required />
+            </div>
+
+            <label class="create-task__urgent">
+              <input type="checkbox" [ngModel]="urgent()" (ngModelChange)="urgent.set(!!$event)" name="urgent" />
+              <span>Tche urgente</span>
+            </label>
+          </section>
+
+          <section class="create-task__col">
+            <div class="create-task__field">
+              <label class="create-task__label">Utilisateur</label>
+              <div class="create-task__dropdown">
+                <button type="button" class="create-task__trigger" (click)="techDropdownOpen.set(!techDropdownOpen())">
+                  <span>{{ selectedTechnician()?.name || 'Slectionner un utilisateur' }}</span>
+                  <svg class="create-task__chevron" [class.create-task__chevron--open]="techDropdownOpen()" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                @if (techDropdownOpen()) {
+                  <div class="create-task__menu">
+                    <div class="create-task__search-wrap">
+                      <input
+                        class="create-task__search"
+                        type="text"
+                        placeholder="Rechercher un utilisateur..."
+                        [ngModel]="techSearch()"
+                        (ngModelChange)="techSearch.set($event)"
+                        name="techSearch"
+                      />
+                    </div>
+                    <div class="create-task__menu-list">
+                      @if (loadingTechs()) {
+                        <p class="create-task__loading">Chargement...</p>
+                      }
+                      @for (tech of filteredTechs(); track tech.id) {
+                        <button type="button" class="create-task__item" [disabled]="!tech.available" (click)="selectTechnician(tech)">
+                          <img class="create-task__avatar" [src]="tech.image || avatarFallback(tech.name)" alt="" />
+                          <span>{{ tech.name }}</span>
+                          @if (!tech.available) {
+                            <small>(Indisponible)</small>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="create-task__field">
+              <label class="create-task__label">Client</label>
+              <div class="create-task__dropdown">
+                <button type="button" class="create-task__trigger" (click)="clientDropdownOpen.set(!clientDropdownOpen())">
+                  <span>{{ selectedClient()?.name || 'Slectionner un client' }}</span>
+                  <svg class="create-task__chevron" [class.create-task__chevron--open]="clientDropdownOpen()" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                @if (clientDropdownOpen()) {
+                  <div class="create-task__menu">
+                    <div class="create-task__search-wrap">
+                      <input
+                        class="create-task__search"
+                        type="text"
+                        placeholder="Rechercher un client..."
+                        [ngModel]="clientSearch()"
+                        (ngModelChange)="clientSearch.set($event)"
+                        name="clientSearch"
+                      />
+                    </div>
+                    <div class="create-task__menu-list">
+                      @if (loadingClients()) {
+                        <p class="create-task__loading">Chargement...</p>
+                      }
+                      @for (client of filteredClients(); track client.id) {
+                        <button type="button" class="create-task__item" (click)="selectClient(client)">
+                          <img class="create-task__avatar" [src]="client.image || avatarFallback(client.name)" alt="" />
+                          <span>{{ client.name }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="create-task__field">
+              <label class="create-task__label">Utilisateurs d'aide</label>
+              <div class="create-task__help-wrap">
+                @for (u of helpingUsers(); track u.id) {
+                  <div class="create-task__chip">
+                    <span>{{ u.name }}</span>
+                    <button type="button" (click)="removeHelpingUser(u.id)" aria-label="Retirer">
+                      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                }
+                @if (!addHelpingOpen()) {
+                  <button type="button" class="create-task__add-btn" (click)="addHelpingOpen.set(true)">+ Ajouter un utilisateur</button>
+                } @else {
+                  <div class="create-task__dropdown">
+                    <button type="button" class="create-task__trigger" (click)="helpingDropdownOpen.set(!helpingDropdownOpen())">
+                      <span>{{ selectedHelpingUser()?.name || 'Slectionner un utilisateur' }}</span>
+                      <svg class="create-task__chevron" [class.create-task__chevron--open]="helpingDropdownOpen()" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                    @if (helpingDropdownOpen()) {
+                      <div class="create-task__menu">
+                        <div class="create-task__search-wrap">
+                          <input
+                            class="create-task__search"
+                            type="text"
+                            placeholder="Rechercher un utilisateur..."
+                            [ngModel]="helpingSearch()"
+                            (ngModelChange)="helpingSearch.set($event)"
+                            name="helpingSearch"
+                          />
+                        </div>
+                        <div class="create-task__menu-list">
+                          @if (loadingUsers()) {
+                            <p class="create-task__loading">Chargement...</p>
+                          }
+                          @for (user of filteredHelpingUsers(); track user.id) {
+                            <button type="button" class="create-task__item" [disabled]="!user.available" (click)="selectedHelpingUser.set(user); helpingDropdownOpen.set(false)">
+                              <img class="create-task__avatar" [src]="user.image || avatarFallback(user.name)" alt="" />
+                              <span>{{ user.name }}</span>
+                              @if (!user.available) {
+                                <small>(Indisponible)</small>
+                              }
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                  <div class="create-task__help-actions">
+                    <button type="button" class="create-task__help-btn" (click)="addHelpingUser()" [disabled]="!selectedHelpingUser()">Ajouter</button>
+                    <button type="button" class="create-task__help-btn" (click)="cancelHelpingAdd()">Annuler</button>
+                  </div>
+                }
+              </div>
+            </div>
+          </section>
+
+          <section class="create-task__col">
+            <div class="create-task__field create-task__field--grow">
+              <label class="create-task__label">Description</label>
+              <div class="create-task__toolbar">
+                <button type="button" (click)="wrapDescription('**', '**')"><strong>B</strong></button>
+                <button type="button" (click)="wrapDescription('*', '*')"><em>I</em></button>
+                <button type="button" (click)="wrapDescription('- ', '')">?</button>
+              </div>
+              <textarea
+                #descriptionRef
+                class="create-task__textarea"
+                [ngModel]="description()"
+                (ngModelChange)="description.set($event)"
+                name="description"
+                rows="14"
+              ></textarea>
+            </div>
+          </section>
+        </div>
+      </form>
+    </div>
+
+    <footer class="create-task__footer">
+      <button type="button" class="create-task__footer-btn" (click)="close()">Annuler</button>
+      <button type="submit" class="create-task__footer-btn create-task__footer-btn--primary" [disabled]="loading()" (click)="submit()">
+        @if (!loading()) {
+          <span>Crer la tche</span>
+        } @else {
+          <span>Cration...</span>
+        }
+      </button>
+    </footer>
+  </aside>
+</div>
