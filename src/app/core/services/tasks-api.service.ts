@@ -119,6 +119,13 @@ export interface TaskDetailsServiceRow {
   price: number | null;
 }
 
+export interface ServiceCatalogRow {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number | null;
+}
+
 export interface TaskDetailsServicePropositionRow {
   id: number;
   name: string;
@@ -200,6 +207,23 @@ export interface UpdateTaskAdminDeliveryPaymentResponse {
   delivery_task_id?: number;
 }
 
+export interface UpdateTaskServicesResponse {
+  success: boolean;
+  message: string;
+  services: TaskDetailsServiceRow[];
+  total_services_price?: number;
+}
+
+export interface ProposeTaskServiceResponse {
+  success: boolean;
+  message: string;
+  proposition?: {
+    id: number;
+    name: string;
+    status: string;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class TasksApiService {
   private readonly http = inject(HttpClient);
@@ -278,6 +302,25 @@ export class TasksApiService {
         amount,
         delivery_date: deliveryDate || undefined,
       },
+    );
+  }
+
+  getAllServices(): Observable<{ success: boolean; services: ServiceCatalogRow[] }> {
+    return this.http.get<{ success: boolean; services: ServiceCatalogRow[] }>(
+      `${environment.apiBaseUrl}/services/all`,
+    );
+  }
+
+  updateTaskServices(taskId: number, serviceIds: number[]): Observable<UpdateTaskServicesResponse> {
+    return this.http.post<UpdateTaskServicesResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/services`, {
+      service_ids: serviceIds,
+    });
+  }
+
+  proposeTaskService(taskId: number, name: string): Observable<ProposeTaskServiceResponse> {
+    return this.http.post<ProposeTaskServiceResponse>(
+      `${environment.apiBaseUrl}/tasks/${taskId}/propose-service`,
+      { name },
     );
   }
 

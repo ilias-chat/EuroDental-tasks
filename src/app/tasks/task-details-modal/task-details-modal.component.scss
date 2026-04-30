@@ -411,17 +411,28 @@
 
 .task-details__payment-btn {
   height: 36px;
-  border: none;
+  border: 1px solid var(--app-brand-primary);
   border-radius: 8px;
   padding: 0 14px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #fff;
+  color: var(--app-brand-primary-text);
+  background: var(--app-brand-primary);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   flex-shrink: 0;
+  transition: filter 120ms ease, opacity 120ms ease;
+}
+
+.task-details__payment-btn:hover {
+  filter: brightness(0.95);
+}
+
+.task-details__payment-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .task-details__payment-btn svg {
@@ -430,11 +441,13 @@
 }
 
 .task-details__payment-btn--green {
-  background: #0f9f6e;
+  background: var(--app-brand-primary);
+  border-color: var(--app-brand-primary);
 }
 
 .task-details__payment-btn--blue {
-  background: #2563eb;
+  background: var(--app-brand-primary);
+  border-color: var(--app-brand-primary);
 }
 
 :host-context([data-theme='dark']) .task-details__payment-info {
@@ -759,6 +772,8 @@
  */
 .task-details__section--progress {
   margin: 0;
+  height: 100%;
+  min-height: 0;
 }
 
 .task-details__progress-layout {
@@ -767,11 +782,18 @@
   align-items: flex-start;
   gap: var(--app-space-4);
   width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
 }
 
 .task-details__progress-main {
-  flex: 1;
+  flex: 1 0 640px;
   min-width: 0;
+  height: 100%;
+  min-height: 0;
 }
 
 .task-details__team-strip-card {
@@ -784,6 +806,10 @@
   border-radius: var(--app-radius-lg);
   background: var(--app-bg-secondary);
   padding: var(--app-space-3);
+  height: 100%;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .task-details__team-strip-head {
@@ -872,14 +898,14 @@
 
 @media (max-width: 700px) {
   .task-details__progress-layout {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .task-details__team-strip-card {
     flex: 0 0 auto;
     width: fit-content;
     max-width: 100%;
-    align-self: flex-start;
+    align-self: stretch;
   }
 }
 
@@ -888,6 +914,10 @@
   border-radius: var(--app-radius-lg);
   background: var(--app-bg-secondary);
   padding: var(--app-space-4);
+  height: 100%;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .task-details__progress-heading {
@@ -1064,6 +1094,207 @@
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
+}
+
+.task-details__services-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.task-details__services-footer {
+  margin-top: auto;
+  padding-top: var(--app-space-2);
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--app-space-2);
+  background: var(--app-bg-primary);
+  position: sticky;
+  bottom: calc(var(--app-space-4) * -1);
+  padding-bottom: var(--app-space-4);
+}
+
+.task-details__services-footer-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.task-details__section--services {
+  min-height: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.task-details__services-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-3);
+  min-height: 0;
+}
+
+.task-details__service-btn {
+  height: 34px;
+  border: var(--app-border-default) var(--app-border-secondary);
+  border-radius: var(--app-radius-md);
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.task-details__service-btn--propose {
+  background: var(--app-bg-secondary);
+  color: var(--app-text-primary);
+}
+
+.task-details__service-btn--suggest {
+  background: #ea580c;
+  color: #fff;
+  border-color: transparent;
+}
+
+.task-details__services-propose-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.task-details__services-propose-inline .task-details__payment-input {
+  min-width: 0;
+  flex: 1;
+}
+
+.task-details__service-editor {
+  margin-top: var(--app-space-3);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-md);
+  background: var(--app-bg-secondary);
+  padding: var(--app-space-3);
+  display: grid;
+  gap: var(--app-space-2);
+}
+
+.task-details__services-picker {
+  position: fixed;
+  top: 0;
+  right: calc(
+    var(--app-sidebar-collapsed-width) + min(56rem, calc(100vw - var(--app-sidebar-width) - var(--app-sidebar-collapsed-width)))
+  );
+  bottom: 0;
+  width: min(28rem, calc(100vw - var(--app-sidebar-width) - var(--app-sidebar-collapsed-width)));
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg-primary);
+  border-left: var(--app-border-default) var(--app-border-tertiary);
+  box-shadow: var(--app-shadow-md);
+  z-index: 29;
+  animation: task-details-services-picker-in 220ms ease-out;
+}
+
+.task-details__services-picker-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  padding: var(--app-space-3);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+}
+
+.task-details__services-picker-head h4 {
+  margin: 0;
+}
+
+.task-details__services-picker-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--app-space-2) var(--app-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+}
+
+.task-details__services-picker-foot {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--app-space-2);
+  padding: var(--app-space-3);
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+}
+
+.task-details__service-options {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  gap: var(--app-space-2);
+}
+
+.task-details__service-card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.task-details__service-remove-btn {
+  height: 28px;
+  border-radius: var(--app-radius-sm);
+  border: var(--app-border-default) var(--app-border-secondary);
+  background: var(--app-bg-input);
+  color: var(--app-text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.task-details__service-remove-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes task-details-services-picker-in {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 1320px) {
+  .task-details__services-picker {
+    right: var(--app-sidebar-collapsed-width);
+    width: min(28rem, calc(100vw - var(--app-sidebar-collapsed-width)));
+    z-index: 31;
+  }
+}
+
+.task-details__service-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: flex-start;
+  gap: var(--app-space-2);
+  border: var(--app-border-default) var(--app-border-tertiary);
+  border-radius: var(--app-radius-sm);
+  padding: 8px 10px;
+  background: var(--app-bg-primary);
+}
+
+.task-details__service-option-label {
+  display: grid;
+  gap: 2px;
 }
 
 .task-details__service-card,

@@ -19,6 +19,7 @@
       <button type="button" class="task-details__tab" [class.task-details__tab--active]="activeTab() === 'progress'" (click)="selectTab('progress')" title="Progression" aria-label="Progression">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20h16" /><path d="M6 16l4-4 3 3 5-7" /></svg>
       </button>
+      @if (!isPaymentDeliveryAutoTask()) {
       <button type="button" class="task-details__tab" [class.task-details__tab--active]="activeTab() === 'payment'" (click)="selectTab('payment')" title="Paiement" aria-label="Paiement">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6.5" width="18" height="11" rx="2"></rect><path d="M3 10h18"></path><circle cx="8.5" cy="13.5" r="1"></circle></svg>
       </button>
@@ -28,6 +29,7 @@
       <button type="button" class="task-details__tab" [class.task-details__tab--active]="activeTab() === 'warranty'" (click)="selectTab('warranty')" title="Products under warranty" aria-label="Products under warranty">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v6c0 5-3.4 7.8-7 9-3.6-1.2-7-4-7-9V6l7-3z" /></svg>
       </button>
+      }
     </div>
 
     <div class="task-details__content">
@@ -360,37 +362,80 @@
           }
 
           @if (activeTab() === 'services') {
-          <section class="task-details__section">
+          <section class="task-details__section task-details__section--services">
             <div class="task-details__section-head">
               <h4>Services fournis</h4>
-              <button type="button" class="task-details__invoice-btn" (click)="openInvoice()">
-                Generer facture
-              </button>
+              <div class="task-details__services-actions">
+                <button type="button" class="task-details__service-btn task-details__service-btn--propose" (click)="openServicesPicker()">
+                  Ajouter service
+                </button>
+              </div>
             </div>
 
-            @for (s of services(); track s.id) {
-              <div class="task-details__service-card">
-                <div>
-                  <strong>{{ s.name }}</strong>
-                  <p class="task-details__muted">{{ s.description || '-' }}</p>
-                </div>
-                <span>{{ s.price != null ? formatAmountDh(s.price) : '-' }}</span>
-              </div>
-            } @empty {
-              <p class="task-details__muted">Aucun service.</p>
-            }
-
-            @if (servicePropositions().length > 0) {
-              <h4 class="task-details__subhead">Propositions en attente</h4>
-              @for (p of servicePropositions(); track p.id) {
-                <div class="task-details__service-card task-details__service-card--pending">
+            <div class="task-details__services-main">
+              @for (s of services(); track s.id) {
+                <div class="task-details__service-card">
                   <div>
-                    <strong>{{ p.name }}</strong>
-                    <p class="task-details__muted">{{ p.proposed_by_name || '-' }} | {{ p.created_at || '-' }}</p>
+                    <strong>{{ s.name }}</strong>
+                    <p class="task-details__muted">{{ s.description || '-' }}</p>
+                  </div>
+                  <div class="task-details__service-card-actions">
+                    <span>{{ s.price != null ? formatAmountDh(s.price) : '-' }}</span>
+                    <button
+                      type="button"
+                      class="task-details__service-remove-btn"
+                      [disabled]="savingServices() || removingServiceId() === s.id"
+                      (click)="removeService(s.id)"
+                    >
+                      @if (removingServiceId() !== s.id) { <span>Retirer</span> } @else { <span>...</span> }
+                    </button>
                   </div>
                 </div>
+              } @empty {
+                <p class="task-details__muted">Aucun service.</p>
               }
-            }
+
+              @if (servicePropositions().length > 0) {
+                <h4 class="task-details__subhead">Propositions en attente</h4>
+                @for (p of servicePropositions(); track p.id) {
+                  <div class="task-details__service-card task-details__service-card--pending">
+                    <div>
+                      <strong>{{ p.name }}</strong>
+                      <p class="task-details__muted">{{ p.proposed_by_name || '-' }} | {{ p.created_at || '-' }}</p>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+
+            <footer class="task-details__services-footer">
+              @if (!editingServiceProposal()) {
+                <div class="task-details__services-footer-actions">
+                  <button type="button" class="task-details__service-btn task-details__service-btn--suggest" (click)="openServiceProposalEdit()">
+                    Proposer service
+                  </button>
+                  <button type="button" class="task-details__invoice-btn" (click)="openInvoice()">
+                    Generer facture
+                  </button>
+                </div>
+              } @else {
+                <div class="task-details__services-propose-inline">
+                  <input
+                    type="text"
+                    class="task-details__payment-input"
+                    placeholder="Nom du service"
+                    [ngModel]="proposedServiceName()"
+                    (ngModelChange)="proposedServiceName.set($event)"
+                  />
+                  <button type="button" class="task-details__payment-action" (click)="cancelServiceProposalEdit()" [disabled]="proposingService()">
+                    Annuler
+                  </button>
+                  <button type="button" class="task-details__payment-action task-details__payment-action--primary" (click)="submitServiceProposal()" [disabled]="proposingService()">
+                    @if (!proposingService()) { <span>Proposer</span> } @else { <span>Envoi...</span> }
+                  </button>
+                </div>
+              }
+            </footer>
           </section>
           }
 
@@ -420,5 +465,56 @@
       }
     </div>
   </aside>
+
+  @if (editingServices()) {
+  <aside class="task-details__services-picker" aria-label="Sélection des services">
+    <header class="task-details__services-picker-head">
+      <h4>Sélectionner des services</h4>
+      <button type="button" class="task-details__close" (click)="closeServicesPicker()" title="Fermer" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+    <div class="task-details__services-picker-body">
+      @if (loadingServiceCatalog()) {
+        <p class="task-details__muted">Chargement des services...</p>
+      } @else {
+        <input
+          type="text"
+          class="task-details__payment-input"
+          placeholder="Rechercher un service..."
+          [ngModel]="serviceSearch()"
+          (ngModelChange)="serviceSearch.set($event)"
+        />
+        <div class="task-details__service-options">
+          @for (item of filteredServiceCatalog(); track item.id) {
+            <label class="task-details__service-option">
+              <input
+                type="checkbox"
+                [checked]="selectedServiceIds().includes(item.id)"
+                (change)="toggleServiceSelection(item.id, $any($event.target).checked)"
+              />
+              <span class="task-details__service-option-label">
+                <strong>{{ item.name }}</strong>
+                <small class="task-details__muted">{{ item.description || '-' }}</small>
+              </span>
+              <span class="task-details__muted">{{ item.price != null ? formatAmountDh(item.price) : '-' }}</span>
+            </label>
+          } @empty {
+            <p class="task-details__muted">Aucun service trouve.</p>
+          }
+        </div>
+      }
+    </div>
+    <footer class="task-details__services-picker-foot">
+      <button type="button" class="task-details__payment-action" (click)="closeServicesPicker()" [disabled]="savingServices()">Annuler</button>
+      <button type="button" class="task-details__payment-action task-details__payment-action--primary" (click)="saveServicesSelection()" [disabled]="savingServices() || loadingServiceCatalog()">
+        @if (!savingServices()) { <span>Ajouter</span> } @else { <span>Enregistrement...</span> }
+      </button>
+    </footer>
+  </aside>
+  }
 </div>
 

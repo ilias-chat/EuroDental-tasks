@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { monthTaskCardStatusClass } from '../../core/calendar/task-status';
 import { ToastService } from '../../core/services/toast.service';
-import type { TaskDetailsRow, TaskDetailsWarrantyRow } from '../../core/services/tasks-api.service';
+import type { ServiceCatalogRow, TaskDetailsRow, TaskDetailsWarrantyRow } from '../../core/services/tasks-api.service';
 import { TasksApiService } from '../../core/services/tasks-api.service';
 import { TasksCalendarStore } from '../../core/state/tasks-calendar.store';
 
@@ -43,6 +43,16 @@ export class TaskDetailsModalComponent {
   readonly adminDeliveryDateDraft = signal('');
   readonly savingAdminDelivery = signal(false);
   readonly adminDeliverySaveError = signal<string | null>(null);
+  readonly editingServices = signal(false);
+  readonly savingServices = signal(false);
+  readonly loadingServiceCatalog = signal(false);
+  readonly serviceCatalog = signal<ServiceCatalogRow[]>([]);
+  readonly serviceSearch = signal('');
+  readonly selectedServiceIds = signal<number[]>([]);
+  readonly removingServiceId = signal<number | null>(null);
+  readonly proposingService = signal(false);
+  readonly proposedServiceName = signal('');
+  readonly editingServiceProposal = signal(false);
   /** Progress tab: filter timeline events by `user_id`; `null` = all members. */
   readonly progressEventUserFilterId = signal<number | null>(null);
 
@@ -67,6 +77,16 @@ export class TaskDetailsModalComponent {
         this.adminDeliveryAmountDraft.set('');
         this.adminDeliveryDateDraft.set('');
         this.adminDeliverySaveError.set(null);
+        this.editingServices.set(false);
+        this.savingServices.set(false);
+        this.loadingServiceCatalog.set(false);
+        this.serviceCatalog.set([]);
+        this.serviceSearch.set('');
+        this.selectedServiceIds.set([]);
+        this.removingServiceId.set(null);
+        this.proposingService.set(false);
+        this.proposedServiceName.set('');
+        this.editingServiceProposal.set(false);
       }
     });
   }
@@ -122,12 +142,40 @@ export class TaskDetailsModalComponent {
   readonly services = computed(() => this.details()?.services ?? []);
   readonly servicePropositions = computed(() => this.details()?.service_propositions ?? []);
   readonly helpingUsers = computed(() => this.details()?.helping_users ?? []);
+  readonly isPaymentDeliveryAutoTask = computed(() => {
+    const raw = this.details()?.task_name ?? '';
+    const name = raw.trim().toLowerCase();
+    return name.startsWith("remise paiement à l'administration");
+  });
+  readonly filteredServiceCatalog = computed(() => {
+    const q = this.serviceSearch().trim().toLowerCase();
+    const rows = this.serviceCatalog();
+    if (!q) {
+      return rows;
+    }
+    return rows.filter(
+      (s) =>
+        (s.name ?? '').toLowerCase().includes(q) ||
+        (s.description ?? '').toLowerCase().includes(q),
+    );
+  });
 
   close(): void {
     this.store.closeTaskDetailsModal();
   }
 
   selectTab(tab: DetailsTab): void {
+    if (tab !== 'services' && this.editingServices()) {
+      this.closeServicesPicker();
+    }
+    if (
+      this.isPaymentDeliveryAutoTask() &&
+      tab !== 'main' &&
+      tab !== 'progress'
+    ) {
+      this.activeTab.set('main');
+      return;
+    }
     this.activeTab.set(tab);
   }
 
@@ -535,6 +583,123 @@ export class TaskDetailsModalComponent {
     window.open(`/admin/tasks/${row.id}/invoice`, '_blank', 'noopener,noreferrer');
   }
 
+  async openServicesPicker(): Promise<void> {
+    const row = this.details();
+    if (!row?.id || this.loadingServiceCatalog()) return;
+    this.loadingServiceCatalog.set(true);
+    this.editingServices.set(true);
+    this.serviceSearch.set('');
+    this.selectedServiceIds.set((row.services ?? []).map((s) => s.id));
+    try {
+      const resp = await firstValueFrom(this.api.getAllServices());
+      this.serviceCatalog.set(Array.isArray(resp.services) ? resp.services : []);
+    } catch {
+      this.toast.error('Erreur lors du chargement des services');
+      this.editingServices.set(false);
+    } finally {
+      this.loadingServiceCatalog.set(false);
+    }
+  }
+
+  closeServicesPicker(): void {
+    this.editingServices.set(false);
+    this.serviceSearch.set('');
+    this.selectedServiceIds.set([]);
+  }
+
+  openServiceProposalEdit(): void {
+    this.editingServiceProposal.set(true);
+    this.proposedServiceName.set('');
+  }
+
+  cancelServiceProposalEdit(): void {
+    this.editingServiceProposal.set(false);
+    this.proposedServiceName.set('');
+  }
+
+  toggleServiceSelection(serviceId: number, checked: boolean): void {
+    this.selectedServiceIds.update((current) => {
+      if (checked) {
+        if (current.includes(serviceId)) return current;
+        return [...current, serviceId];
+      }
+      return current.filter((id) => id !== serviceId);
+    });
+  }
+
+  async saveServicesSelection(): Promise<void> {
+    const row = this.details();
+    if (!row?.id || this.savingServices()) return;
+    await this.persistServices(this.selectedServiceIds(), 'Services mis à jour avec succès');
+  }
+
+  async removeService(serviceId: number): Promise<void> {
+    const row = this.details();
+    if (!row?.id || this.savingServices() || this.removingServiceId() != null) return;
+    const nextIds = (row.services ?? []).map((s) => s.id).filter((id) => id !== serviceId);
+    this.removingServiceId.set(serviceId);
+    try {
+      await this.persistServices(nextIds, 'Service retiré avec succès');
+    } finally {
+      this.removingServiceId.set(null);
+    }
+  }
+
+  private async persistServices(serviceIds: number[], successMessage: string): Promise<void> {
+    const row = this.details();
+    if (!row?.id) return;
+    this.savingServices.set(true);
+    try {
+      const resp = await firstValueFrom(this.api.updateTaskServices(row.id, serviceIds));
+      if (!resp?.success) {
+        throw new Error('services_update_failed');
+      }
+      this.details.update((cur) =>
+        cur
+          ? {
+              ...cur,
+              services: Array.isArray(resp.services) ? resp.services : [],
+            }
+          : cur,
+      );
+      this.selectedServiceIds.set((Array.isArray(resp.services) ? resp.services : []).map((s) => s.id));
+      this.editingServices.set(false);
+      this.toast.success(resp.message || successMessage);
+    } catch (e) {
+      const msg = this.extractApiErrorMessage(e) ?? 'Erreur lors de la sauvegarde des services';
+      this.toast.error(msg);
+    } finally {
+      this.savingServices.set(false);
+    }
+  }
+
+  async submitServiceProposal(): Promise<void> {
+    const row = this.details();
+    const name = this.proposedServiceName().trim();
+    if (!row?.id || this.proposingService()) return;
+    if (!name) {
+      this.toast.info('Veuillez saisir un nom de service.');
+      return;
+    }
+    this.proposingService.set(true);
+    try {
+      const resp = await firstValueFrom(this.api.proposeTaskService(row.id, name));
+      if (!resp?.success) {
+        throw new Error('service_proposal_failed');
+      }
+      this.proposedServiceName.set('');
+      this.editingServiceProposal.set(false);
+      this.toast.success(resp.message || 'Proposition envoyée avec succès');
+      await this.loadDetails(row.id);
+      this.activeTab.set('services');
+    } catch (e) {
+      const msg = this.extractApiErrorMessage(e) ?? "Erreur lors de l'envoi de la proposition";
+      this.toast.error(msg);
+    } finally {
+      this.proposingService.set(false);
+    }
+  }
+
   warrantyBadgeClass(daysLeft: string | number | null | undefined): string {
     const n = Number(daysLeft ?? 0);
     if (n <= 0) return 'task-details__warranty-pill task-details__warranty-pill--expired';
@@ -550,6 +715,16 @@ export class TaskDetailsModalComponent {
     this.paymentSaveError.set(null);
     this.editingAdminDelivery.set(false);
     this.adminDeliverySaveError.set(null);
+    this.editingServices.set(false);
+    this.savingServices.set(false);
+    this.loadingServiceCatalog.set(false);
+    this.serviceCatalog.set([]);
+    this.serviceSearch.set('');
+    this.selectedServiceIds.set([]);
+    this.removingServiceId.set(null);
+    this.proposingService.set(false);
+    this.proposedServiceName.set('');
+    this.editingServiceProposal.set(false);
     this.loading.set(true);
     this.error.set(null);
     this.details.set(null);
@@ -561,6 +736,13 @@ export class TaskDetailsModalComponent {
       }
       this.details.set(data.task);
       this.descriptionDraft.set(data.task.description ?? '');
+      if (
+        this.isPaymentDeliveryAutoTask() &&
+        this.activeTab() !== 'main' &&
+        this.activeTab() !== 'progress'
+      ) {
+        this.activeTab.set('main');
+      }
       if (data.task.client_id) {
         void this.loadWarranty(data.task.client_id);
       }
