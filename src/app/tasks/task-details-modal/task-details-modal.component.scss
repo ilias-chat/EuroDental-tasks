@@ -1060,6 +1060,38 @@
   color: var(--app-text-secondary);
 }
 
+.task-details__progress-footer {
+  margin-top: var(--app-space-3);
+  padding-top: var(--app-space-3);
+  border-top: var(--app-border-default) var(--app-border-tertiary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-2);
+}
+
+.task-details__progress-action {
+  height: 36px;
+  border: none;
+  border-radius: var(--app-radius-md);
+  padding: 0 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.task-details__progress-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.task-details__progress-action--orange { background: #ea580c; }
+.task-details__progress-action--gray { background: #4b5563; }
+.task-details__progress-action--blue { background: #2563eb; }
+.task-details__progress-action--green { background: #16a34a; }
+.task-details__progress-action--red { background: #dc2626; }
+.task-details__progress-action--indigo { background: #4f46e5; }
+
 /* Dark theme: stronger contrast on timeline chrome + supporting text */
 :host-context([data-theme='dark']) .task-details__section--progress {
   .task-details__progress-line {

@@ -5,7 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { monthTaskCardStatusClass } from '../../core/calendar/task-status';
 import { ToastService } from '../../core/services/toast.service';
-import type { ServiceCatalogRow, TaskDetailsRow, TaskDetailsWarrantyRow } from '../../core/services/tasks-api.service';
+import type {
+  ServiceCatalogRow,
+  TaskDetailsRow,
+  TaskDetailsWarrantyRow,
+  TaskProgressActionResponse,
+} from '../../core/services/tasks-api.service';
 import { TasksApiService } from '../../core/services/tasks-api.service';
 import { TasksCalendarStore } from '../../core/state/tasks-calendar.store';
 
@@ -53,6 +58,9 @@ export class TaskDetailsModalComponent {
   readonly proposingService = signal(false);
   readonly proposedServiceName = signal('');
   readonly editingServiceProposal = signal(false);
+  readonly loadingProgressAction = signal<
+    'start_route' | 'end_route' | 'start_visit' | 'pause_visit' | 'resume_visit' | 'finish_visit' | 'finish_task' | null
+  >(null);
   /** Progress tab: filter timeline events by `user_id`; `null` = all members. */
   readonly progressEventUserFilterId = signal<number | null>(null);
 
@@ -87,6 +95,7 @@ export class TaskDetailsModalComponent {
         this.proposingService.set(false);
         this.proposedServiceName.set('');
         this.editingServiceProposal.set(false);
+        this.loadingProgressAction.set(null);
       }
     });
   }
@@ -159,6 +168,17 @@ export class TaskDetailsModalComponent {
         (s.description ?? '').toLowerCase().includes(q),
     );
   });
+  readonly progressCanManageTask = computed(() => {
+    const row = this.details();
+    if (!row) return false;
+    if (row.can_manage_task) return true;
+    const uid = row.current_user_id;
+    if (!uid) return false;
+    if (row.is_main_technician) return true;
+    if (row.technician_id != null && Number(row.technician_id) === Number(uid)) return true;
+    return (row.helping_users ?? []).some((u) => Number(u.id) === Number(uid));
+  });
+  readonly progressUserLastEvent = computed(() => this.details()?.user_last_event ?? null);
 
   close(): void {
     this.store.closeTaskDetailsModal();
@@ -700,6 +720,130 @@ export class TaskDetailsModalComponent {
     }
   }
 
+  canShowProgressAction(action: 'start_route' | 'end_route' | 'start_visit' | 'pause_visit' | 'resume_visit' | 'finish_visit' | 'finish_task'): boolean {
+    const row = this.details();
+    const last = this.progressUserLastEvent();
+    if (!row || !this.progressCanManageTask()) return false;
+    if (row.status === 'terminée' || row.status === 'annulée') return false;
+    switch (action) {
+      case 'start_route':
+        return last == null || last === 'end_route' || last === 'finish_visit';
+      case 'end_route':
+      case 'start_visit':
+        return last === 'start_route';
+      case 'pause_visit':
+        return last === 'start_visit' || last === 'resume_visit';
+      case 'resume_visit':
+        return last === 'pause_visit';
+      case 'finish_visit':
+        return last === 'start_visit' || last === 'pause_visit' || last === 'resume_visit';
+      case 'finish_task':
+        return last === 'finish_visit' && !!row.is_main_technician;
+    }
+  }
+
+  private applyProgressActionResult(
+    resp: TaskProgressActionResponse,
+    action: 'start_route' | 'end_route' | 'start_visit' | 'pause_visit' | 'resume_visit' | 'finish_visit' | 'finish_task',
+  ): void {
+    this.details.update((cur) =>
+      cur
+        ? {
+            ...cur,
+            status: resp.task_status ?? cur.status,
+            current_visit_status: resp.current_visit_status ?? cur.current_visit_status,
+            has_ongoing_visit: resp.has_ongoing_visit ?? cur.has_ongoing_visit,
+            user_last_event: resp.user_last_event ?? action,
+            events:
+              resp.event && resp.event.event_type
+                ? [
+                    ...cur.events,
+                    {
+                      id: Number(resp.event.id ?? Date.now()),
+                      event_type: resp.event.event_type,
+                      event_time: resp.event.event_time ?? resp.event.created_at ?? new Date().toISOString(),
+                      event_time_label: this.formatProgressEventDateLabel(
+                        resp.event.event_time ?? resp.event.created_at ?? null,
+                      ),
+                      latitude: null,
+                      longitude: null,
+                      user_id: resp.event.user_id ?? cur.current_user_id ?? null,
+                      user_name: this.connectedUserNameForTask(cur, resp.event.user_id ?? cur.current_user_id ?? null),
+                      user_image: null,
+                    },
+                  ]
+                : cur.events,
+          }
+        : cur,
+    );
+  }
+
+  private formatProgressEventDateLabel(v: string | null | undefined): string | null {
+    if (!v) return null;
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return v;
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+  }
+
+  private connectedUserNameForTask(task: TaskDetailsRow, userId: number | null): string {
+    if (userId == null) return 'Vous';
+    if (task.technician_id != null && Number(task.technician_id) === Number(userId)) {
+      return task.technician_name?.trim() || 'Vous';
+    }
+    const helper = (task.helping_users ?? []).find((u) => Number(u.id) === Number(userId));
+    if (helper?.name?.trim()) return helper.name.trim();
+    return 'Vous';
+  }
+
+  async runProgressAction(
+    action: 'start_route' | 'end_route' | 'start_visit' | 'pause_visit' | 'resume_visit' | 'finish_visit' | 'finish_task',
+  ): Promise<void> {
+    const row = this.details();
+    if (!row?.id || this.loadingProgressAction()) return;
+    this.loadingProgressAction.set(action);
+    try {
+      let resp: TaskProgressActionResponse;
+      switch (action) {
+        case 'start_route':
+          resp = await firstValueFrom(this.api.startTaskRoute(row.id));
+          break;
+        case 'end_route':
+          resp = await firstValueFrom(this.api.endTaskRoute(row.id));
+          break;
+        case 'start_visit':
+          resp = await firstValueFrom(this.api.startTaskVisit(row.id));
+          break;
+        case 'pause_visit':
+          resp = await firstValueFrom(this.api.pauseTaskVisit(row.id));
+          break;
+        case 'resume_visit':
+          resp = await firstValueFrom(this.api.resumeTaskVisit(row.id));
+          break;
+        case 'finish_visit':
+          resp = await firstValueFrom(this.api.finishTaskVisit(row.id));
+          break;
+        case 'finish_task':
+          resp = await firstValueFrom(this.api.finishTask(row.id));
+          break;
+      }
+      if (!resp?.success) throw new Error('progress_action_failed');
+      this.applyProgressActionResult(resp, action);
+      this.activeTab.set('progress');
+      void this.store.refresh();
+      this.toast.success(resp.message || 'Action effectuée avec succès');
+    } catch (e) {
+      const msg = this.extractApiErrorMessage(e) ?? "Impossible d'effectuer cette action.";
+      this.toast.error(msg);
+    } finally {
+      this.loadingProgressAction.set(null);
+    }
+  }
+
   warrantyBadgeClass(daysLeft: string | number | null | undefined): string {
     const n = Number(daysLeft ?? 0);
     if (n <= 0) return 'task-details__warranty-pill task-details__warranty-pill--expired';
@@ -725,6 +869,7 @@ export class TaskDetailsModalComponent {
     this.proposingService.set(false);
     this.proposedServiceName.set('');
     this.editingServiceProposal.set(false);
+    this.loadingProgressAction.set(null);
     this.loading.set(true);
     this.error.set(null);
     this.details.set(null);

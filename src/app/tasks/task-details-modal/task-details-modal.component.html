@@ -249,6 +249,46 @@
                 </aside>
               }
             </div>
+
+            @if (progressCanManageTask() && row.status !== 'terminée' && row.status !== 'annulée') {
+              <footer class="task-details__progress-footer">
+                @if (canShowProgressAction('start_route')) {
+                  <button type="button" class="task-details__progress-action task-details__progress-action--orange" (click)="runProgressAction('start_route')" [disabled]="loadingProgressAction() !== null">
+                    @if (loadingProgressAction() !== 'start_route') { <span>En route</span> } @else { <span>En route...</span> }
+                  </button>
+                }
+                @if (canShowProgressAction('end_route')) {
+                  <button type="button" class="task-details__progress-action task-details__progress-action--gray" (click)="runProgressAction('end_route')" [disabled]="loadingProgressAction() !== null">
+                    @if (loadingProgressAction() !== 'end_route') { <span>Annuler le trajet</span> } @else { <span>Annulation...</span> }
+                  </button>
+                }
+                @if (canShowProgressAction('start_visit')) {
+                  <button type="button" class="task-details__progress-action task-details__progress-action--blue" (click)="runProgressAction('start_visit')" [disabled]="loadingProgressAction() !== null">
+                    @if (loadingProgressAction() !== 'start_visit') { <span>Démarrer la visite</span> } @else { <span>Démarrage...</span> }
+                  </button>
+                }
+                @if (canShowProgressAction('pause_visit')) {
+                  <button type="button" class="task-details__progress-action task-details__progress-action--green" (click)="runProgressAction('pause_visit')" [disabled]="loadingProgressAction() !== null">
+                    @if (loadingProgressAction() !== 'pause_visit') { <span>Mettre en pause</span> } @else { <span>Mise en pause...</span> }
+                  </button>
+                }
+                @if (canShowProgressAction('resume_visit')) {
+                  <button type="button" class="task-details__progress-action task-details__progress-action--blue" (click)="runProgressAction('resume_visit')" [disabled]="loadingProgressAction() !== null">
+                    @if (loadingProgressAction() !== 'resume_visit') { <span>Reprendre la visite</span> } @else { <span>Reprise...</span> }
+                  </button>
+                }
+                @if (canShowProgressAction('finish_visit')) {
+                  <button type="button" class="task-details__progress-action task-details__progress-action--red" (click)="runProgressAction('finish_visit')" [disabled]="loadingProgressAction() !== null">
+                    @if (loadingProgressAction() !== 'finish_visit') { <span>Terminer la visite</span> } @else { <span>Finalisation...</span> }
+                  </button>
+                }
+                @if (canShowProgressAction('finish_task')) {
+                  <button type="button" class="task-details__progress-action task-details__progress-action--indigo" (click)="runProgressAction('finish_task')" [disabled]="loadingProgressAction() !== null">
+                    @if (loadingProgressAction() !== 'finish_task') { <span>Terminer la tâche</span> } @else { <span>Finalisation...</span> }
+                  </button>
+                }
+              </footer>
+            }
           </section>
           }
 

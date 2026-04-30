@@ -170,6 +170,10 @@ export interface TaskDetailsRow {
   technician_name: string | null;
   technician_image: string | null;
   technician: { id: number; name: string; image: string | null } | null;
+  current_user_id: number | null;
+  is_main_technician: boolean;
+  can_manage_task: boolean;
+  user_last_event: string | null;
   helping_users: Array<{ id: number; name: string; image: string | null }>;
   client_name: string | null;
   client_city: string | null;
@@ -222,6 +226,22 @@ export interface ProposeTaskServiceResponse {
     name: string;
     status: string;
   };
+}
+
+export interface TaskProgressActionResponse {
+  success: boolean;
+  message?: string;
+  event?: {
+    id?: number;
+    event_type?: string;
+    event_time?: string | null;
+    created_at?: string | null;
+    user_id?: number | null;
+  };
+  task_status?: string;
+  current_visit_status?: string | null;
+  has_ongoing_visit?: boolean;
+  user_last_event?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -322,6 +342,34 @@ export class TasksApiService {
       `${environment.apiBaseUrl}/tasks/${taskId}/propose-service`,
       { name },
     );
+  }
+
+  startTaskRoute(taskId: number): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/start-route`, {});
+  }
+
+  endTaskRoute(taskId: number): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/end-route`, {});
+  }
+
+  startTaskVisit(taskId: number): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/start-visit`, {});
+  }
+
+  pauseTaskVisit(taskId: number): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/pause-visit`, {});
+  }
+
+  resumeTaskVisit(taskId: number): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/resume-visit`, {});
+  }
+
+  finishTaskVisit(taskId: number): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/finish-visit`, {});
+  }
+
+  finishTask(taskId: number): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/finish`, {});
   }
 
   getClientWarrantyProducts(
