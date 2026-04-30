@@ -1039,6 +1039,19 @@
   padding: var(--app-space-3) 0;
 }
 
+.tasks-page__tracking-content {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 270px) minmax(0, 1fr);
+}
+
+.tasks-page__tracking-main {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .tasks-page__tracking-week {
   display: flex;
   align-items: center;
@@ -1101,21 +1114,37 @@
 
 .tasks-page__tracking-users-wrap {
   --tracking-user-chip-h: 64px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-right: var(--app-border-default) var(--app-border-tertiary);
+  background: var(--app-bg-secondary);
+  min-height: 0;
+}
 
+.tasks-page__tracking-users-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--app-space-2);
-  padding: 0 var(--app-space-3);
-  border-top: var(--app-border-default) var(--app-border-tertiary);
-  padding-top: var(--app-space-3);
+  padding: var(--app-space-3);
+  padding-bottom: var(--app-space-2);
+  border-bottom: var(--app-border-default) var(--app-border-tertiary);
+}
+
+.tasks-page__tracking-users-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--app-text-primary);
 }
 
 .tasks-page__tracking-filter-btn {
   box-sizing: border-box;
   width: 40px;
-  height: var(--tracking-user-chip-h);
-  min-height: var(--tracking-user-chip-h);
-  max-height: var(--tracking-user-chip-h);
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
   flex-shrink: 0;
   border-radius: var(--app-radius-md);
   border: var(--app-border-default) var(--app-border-secondary);
@@ -1153,20 +1182,22 @@
 
 .tasks-page__tracking-users {
   display: flex;
+  flex-direction: column;
   gap: var(--app-space-2);
-  overflow-x: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
-  min-width: 0;
-  padding-bottom: 2px;
+  min-height: 0;
+  padding: var(--app-space-3);
 }
 
 .tasks-page__tracking-users--loading {
-  align-items: center;
+  align-items: stretch;
 }
 
 .tasks-page__tracking-user-skel {
   flex-shrink: 0;
-  width: 200px;
+  width: 100%;
   height: 64px;
   border-radius: var(--app-radius-md);
   background: var(--app-bg-tertiary, rgba(0, 0, 0, 0.06));
@@ -1182,7 +1213,8 @@
 .tasks-page__tracking-user {
   box-sizing: border-box;
   flex-shrink: 0;
-  min-width: 200px;
+  width: 100%;
+  min-width: 0;
   min-height: var(--tracking-user-chip-h, 64px);
   display: flex;
   align-items: center;
@@ -1299,6 +1331,18 @@
   overflow-y: auto;
   padding: var(--app-space-4);
   background: var(--app-bg-tertiary, #f7f7f7);
+}
+
+@media (max-width: 980px) {
+  .tasks-page__tracking-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tasks-page__tracking-users-wrap {
+    border-right: none;
+    border-bottom: var(--app-border-default) var(--app-border-tertiary);
+    max-height: 220px;
+  }
 }
 
 .tasks-page__tracking-err,
@@ -1421,8 +1465,8 @@
 }
 
 .tasks-page__tracking-pill {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   padding: 6px 12px;
   border-radius: 999px;
   border: 2px solid transparent;
@@ -1468,49 +1512,49 @@
 :root[data-theme='dark'] .tasks-page__tracking-pill--blue {
   --tracking-pill-accent: #60a5fa;
 
-  background: color-mix(in srgb, var(--tracking-pill-accent) 32%, var(--app-bg-tertiary));
+  background: color-mix(in srgb, var(--tracking-pill-accent) 44%, #0f172a);
   border-color: var(--tracking-pill-accent);
-  color: var(--tracking-pill-accent);
+  color: #ffffff;
 }
 
 :root[data-theme='dark'] .tasks-page__tracking-pill--yellow {
   --tracking-pill-accent: #facc15;
 
-  background: color-mix(in srgb, var(--tracking-pill-accent) 30%, var(--app-bg-tertiary));
+  background: color-mix(in srgb, var(--tracking-pill-accent) 42%, #111827);
   border-color: var(--tracking-pill-accent);
-  color: var(--tracking-pill-accent);
+  color: #ffffff;
 }
 
 :root[data-theme='dark'] .tasks-page__tracking-pill--orange {
   --tracking-pill-accent: #fb923c;
 
-  background: color-mix(in srgb, var(--tracking-pill-accent) 32%, var(--app-bg-tertiary));
+  background: color-mix(in srgb, var(--tracking-pill-accent) 44%, #111827);
   border-color: var(--tracking-pill-accent);
-  color: var(--tracking-pill-accent);
+  color: #ffffff;
 }
 
 :root[data-theme='dark'] .tasks-page__tracking-pill--gray {
   --tracking-pill-accent: #d1d5db;
 
-  background: color-mix(in srgb, #9ca3af 28%, var(--app-bg-tertiary));
+  background: color-mix(in srgb, #9ca3af 44%, #111827);
   border-color: var(--tracking-pill-accent);
-  color: var(--tracking-pill-accent);
+  color: #ffffff;
 }
 
 :root[data-theme='dark'] .tasks-page__tracking-pill--green {
   --tracking-pill-accent: #4ade80;
 
-  background: color-mix(in srgb, var(--tracking-pill-accent) 30%, var(--app-bg-tertiary));
+  background: color-mix(in srgb, var(--tracking-pill-accent) 42%, #0f172a);
   border-color: var(--tracking-pill-accent);
-  color: var(--tracking-pill-accent);
+  color: #ffffff;
 }
 
 :root[data-theme='dark'] .tasks-page__tracking-pill--purple {
   --tracking-pill-accent: #c084fc;
 
-  background: color-mix(in srgb, var(--tracking-pill-accent) 30%, var(--app-bg-tertiary));
+  background: color-mix(in srgb, var(--tracking-pill-accent) 42%, #111827);
   border-color: var(--tracking-pill-accent);
-  color: var(--tracking-pill-accent);
+  color: #ffffff;
 }
 
 .tasks-page__tracking-card-body {

@@ -1,6 +1,8 @@
 <div
   class="cal-task-card"
+  [class]="monthTaskCardStatusClass(task.status)"
   [style.--cal-task-strip-color]="taskStatusStripVar(task.status)"
+  [attr.title]="'Statut: ' + (task.status || '-')"
   role="button"
   tabindex="0"
   (click)="openDetails()"
@@ -17,21 +19,23 @@
       @if (task.has_ongoing_visit) {
         <span class="cal-task-card__visit-dot" title="Visite en cours"></span>
       }
-      @if (isPaid()) {
-        <span
-          class="cal-task-card__badge cal-task-card__badge--paid"
-          [attr.title]="
-            formatAmountDh(task.amount_paid) ? 'Payé : ' + formatAmountDh(task.amount_paid) : 'Payé'
-          "
-        >
-          @if (formatAmountDh(task.amount_paid)) {
-            {{ formatAmountDh(task.amount_paid) }}
-          } @else {
-            Payé
-          }
-        </span>
-      } @else {
-        <span class="cal-task-card__badge cal-task-card__badge--unpaid" title="Non payé">Non payé</span>
+      @if (!isAdminDeliveryTask()) {
+        @if (isPaid()) {
+          <span
+            class="cal-task-card__badge cal-task-card__badge--paid"
+            [attr.title]="
+              formatAmountDh(task.amount_paid) ? 'Payé : ' + formatAmountDh(task.amount_paid) : 'Payé'
+            "
+          >
+            @if (formatAmountDh(task.amount_paid)) {
+              {{ formatAmountDh(task.amount_paid) }}
+            } @else {
+              Payé
+            }
+          </span>
+        } @else {
+          <span class="cal-task-card__badge cal-task-card__badge--unpaid" title="Non payé">Non payé</span>
+        }
       }
       @if (task.urgent) {
         <span class="cal-task-card__badge cal-task-card__badge--urgent">Urgente</span>

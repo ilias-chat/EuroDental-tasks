@@ -399,44 +399,16 @@
       aria-label="Suivi des tâches"
     >
       <div class="tasks-page__tracking-inner">
-      <header class="tasks-page__tracking-header">
-        <div class="tasks-page__tracking-title-row">
-          <h3 class="tasks-page__tracking-title">Suivi des Tâches</h3>
-          <span class="tasks-page__tracking-date-label">({{ trackingLongDateLabel() }})</span>
-        </div>
-        <button type="button" class="tasks-page__tracking-close" (click)="closeTrackingPanel()" title="Fermer" aria-label="Fermer">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </header>
-
-      <div class="tasks-page__tracking-toolbar">
-        <div class="tasks-page__tracking-week">
-          <button type="button" class="tasks-page__tracking-week-nav" (click)="trackingPrevWeek()" aria-label="Semaine précédente">‹</button>
-          <div class="tasks-page__tracking-week-days">
-            @for (day of trackingWeekDays(); track day.date) {
-              <button
-                type="button"
-                class="tasks-page__tracking-day"
-                [class.tasks-page__tracking-day--active]="store.trackingDate() === day.date"
-                (click)="selectTrackingDay(day.date)"
-              >
-                <span class="tasks-page__tracking-day-name">{{ day.dayName }}</span>
-                <span class="tasks-page__tracking-day-num">{{ day.dayNumber }}</span>
-              </button>
-            }
+      <div class="tasks-page__tracking-content">
+        <aside class="tasks-page__tracking-users-wrap">
+          <div class="tasks-page__tracking-users-head">
+            <span class="tasks-page__tracking-users-title">Utilisateurs</span>
+            <button type="button" class="tasks-page__tracking-filter-btn" (click)="toggleTrackingFilterSheet()" title="Filtrer les utilisateurs" aria-label="Filtrer les utilisateurs">
+              <svg class="tasks-page__tracking-filter-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
+              </svg>
+            </button>
           </div>
-          <button type="button" class="tasks-page__tracking-week-nav" (click)="trackingNextWeek()" aria-label="Semaine suivante">›</button>
-        </div>
-
-        <div class="tasks-page__tracking-users-wrap">
-          <button type="button" class="tasks-page__tracking-filter-btn" (click)="toggleTrackingFilterSheet()" title="Filtrer les utilisateurs" aria-label="Filtrer les utilisateurs">
-            <svg class="tasks-page__tracking-filter-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
-            </svg>
-          </button>
           @if (store.trackingUsersLoading()) {
             <div class="tasks-page__tracking-users tasks-page__tracking-users--loading">
               @for (s of [1, 2, 3, 4]; track s) {
@@ -482,10 +454,43 @@
               }
             </div>
           }
-        </div>
-      </div>
+        </aside>
 
-      <div class="tasks-page__tracking-body">
+        <div class="tasks-page__tracking-main">
+          <header class="tasks-page__tracking-header">
+            <div class="tasks-page__tracking-title-row">
+              <h3 class="tasks-page__tracking-title">Suivi des Tâches</h3>
+              <span class="tasks-page__tracking-date-label">({{ trackingLongDateLabel() }})</span>
+            </div>
+            <button type="button" class="tasks-page__tracking-close" (click)="closeTrackingPanel()" title="Fermer" aria-label="Fermer">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </header>
+
+          <div class="tasks-page__tracking-toolbar">
+            <div class="tasks-page__tracking-week">
+              <button type="button" class="tasks-page__tracking-week-nav" (click)="trackingPrevWeek()" aria-label="Semaine précédente">‹</button>
+              <div class="tasks-page__tracking-week-days">
+                @for (day of trackingWeekDays(); track day.date) {
+                  <button
+                    type="button"
+                    class="tasks-page__tracking-day"
+                    [class.tasks-page__tracking-day--active]="store.trackingDate() === day.date"
+                    (click)="selectTrackingDay(day.date)"
+                  >
+                    <span class="tasks-page__tracking-day-name">{{ day.dayName }}</span>
+                    <span class="tasks-page__tracking-day-num">{{ day.dayNumber }}</span>
+                  </button>
+                }
+              </div>
+              <button type="button" class="tasks-page__tracking-week-nav" (click)="trackingNextWeek()" aria-label="Semaine suivante">›</button>
+            </div>
+          </div>
+
+          <div class="tasks-page__tracking-body">
         @if (store.trackingUsersError()) {
           <p class="tasks-page__tracking-err">{{ store.trackingUsersError() }}</p>
         }
@@ -579,6 +584,8 @@
             }
           </div>
         }
+          </div>
+        </div>
       </div>
     </div>
     </aside>

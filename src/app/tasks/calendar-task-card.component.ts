@@ -4,7 +4,7 @@ import {
   plainDescriptionPreview,
   technicianAvatarSrc,
 } from '../core/calendar/task-card.helpers';
-import { taskStatusStripVar } from '../core/calendar/task-status';
+import { monthTaskCardStatusClass, taskStatusStripVar } from '../core/calendar/task-status';
 import type { CalendarTaskRow } from '../models/calendar.types';
 import { TasksCalendarStore } from '../core/state/tasks-calendar.store';
 
@@ -22,6 +22,7 @@ export class CalendarTaskCardComponent {
   readonly taskStatusStripVar = taskStatusStripVar;
   readonly plainDescriptionPreview = plainDescriptionPreview;
   readonly formatAmountDh = formatAmountDh;
+  readonly monthTaskCardStatusClass = monthTaskCardStatusClass;
   readonly technicianAvatarSrc = technicianAvatarSrc;
 
   taskTitle(): string {
@@ -31,6 +32,11 @@ export class CalendarTaskCardComponent {
 
   isPaid(): boolean {
     return !!this.task.is_paid;
+  }
+
+  isAdminDeliveryTask(): boolean {
+    const name = this.task.task_name?.trim() ?? '';
+    return name.startsWith("Remise paiement à l'administration");
   }
 
   openDetails(): void {

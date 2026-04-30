@@ -368,8 +368,11 @@ export class TasksApiService {
     return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/finish-visit`, {});
   }
 
-  finishTask(taskId: number): Observable<TaskProgressActionResponse> {
-    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/finish`, {});
+  finishTask(
+    taskId: number,
+    body?: { received_by_user_id?: number },
+  ): Observable<TaskProgressActionResponse> {
+    return this.http.post<TaskProgressActionResponse>(`${environment.apiBaseUrl}/tasks/${taskId}/finish`, body ?? {});
   }
 
   getClientWarrantyProducts(

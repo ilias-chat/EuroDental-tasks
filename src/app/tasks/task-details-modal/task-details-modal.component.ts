@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { monthTaskCardStatusClass } from '../../core/calendar/task-status';
 import { ToastService } from '../../core/services/toast.service';
 import type {
+  CreateTaskUserRow,
   ServiceCatalogRow,
   TaskDetailsRow,
   TaskDetailsWarrantyRow,
@@ -61,6 +62,13 @@ export class TaskDetailsModalComponent {
   readonly loadingProgressAction = signal<
     'start_route' | 'end_route' | 'start_visit' | 'pause_visit' | 'resume_visit' | 'finish_visit' | 'finish_task' | null
   >(null);
+  /** Admin delivery (money) task: finish requires who received the payment — footer form. */
+  readonly editingDeliveryFinish = signal(false);
+  readonly loadingDeliveryFinishUsers = signal(false);
+  readonly deliveryFinishUsers = signal<CreateTaskUserRow[]>([]);
+  readonly deliveryFinishUserId = signal<number | null>(null);
+  readonly deliveryFinishDropdownOpen = signal(false);
+  readonly deliveryFinishUserSearch = signal('');
   /** Progress tab: filter timeline events by `user_id`; `null` = all members. */
   readonly progressEventUserFilterId = signal<number | null>(null);
 
@@ -96,6 +104,12 @@ export class TaskDetailsModalComponent {
         this.proposedServiceName.set('');
         this.editingServiceProposal.set(false);
         this.loadingProgressAction.set(null);
+        this.editingDeliveryFinish.set(false);
+        this.loadingDeliveryFinishUsers.set(false);
+        this.deliveryFinishUsers.set([]);
+        this.deliveryFinishUserId.set(null);
+        this.deliveryFinishDropdownOpen.set(false);
+        this.deliveryFinishUserSearch.set('');
       }
     });
   }
@@ -168,6 +182,16 @@ export class TaskDetailsModalComponent {
         (s.description ?? '').toLowerCase().includes(q),
     );
   });
+
+  readonly filteredDeliveryFinishUsers = computed(() => {
+    const q = this.deliveryFinishUserSearch().trim().toLowerCase();
+    const rows = this.deliveryFinishUsers();
+    if (!q) return rows;
+    return rows.filter((u) => {
+      const name = `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim().toLowerCase();
+      return name.includes(q);
+    });
+  });
   readonly progressCanManageTask = computed(() => {
     const row = this.details();
     if (!row) return false;
@@ -187,6 +211,9 @@ export class TaskDetailsModalComponent {
   selectTab(tab: DetailsTab): void {
     if (tab !== 'services' && this.editingServices()) {
       this.closeServicesPicker();
+    }
+    if (tab !== 'progress' && this.editingDeliveryFinish()) {
+      this.cancelDeliveryFinishForm();
     }
     if (
       this.isPaymentDeliveryAutoTask() &&
@@ -724,6 +751,7 @@ export class TaskDetailsModalComponent {
     const row = this.details();
     const last = this.progressUserLastEvent();
     if (!row || !this.progressCanManageTask()) return false;
+    if (this.editingDeliveryFinish()) return false;
     if (row.status === 'terminée' || row.status === 'annulée') return false;
     switch (action) {
       case 'start_route':
@@ -800,6 +828,93 @@ export class TaskDetailsModalComponent {
     return 'Vous';
   }
 
+  onProgressFinishTaskClick(): void {
+    if (this.isPaymentDeliveryAutoTask()) {
+      void this.openDeliveryFinishForm();
+      return;
+    }
+    void this.runProgressAction('finish_task');
+  }
+
+  async openDeliveryFinishForm(): Promise<void> {
+    const row = this.details();
+    if (!row?.id || this.loadingDeliveryFinishUsers()) return;
+    this.deliveryFinishUserId.set(null);
+    this.deliveryFinishUserSearch.set('');
+    this.deliveryFinishDropdownOpen.set(false);
+    this.editingDeliveryFinish.set(true);
+    this.loadingDeliveryFinishUsers.set(true);
+    try {
+      const date = row.task_date?.trim() || new Date().toISOString().slice(0, 10);
+      const data = await firstValueFrom(this.api.getCreateTaskUsers(date));
+      this.deliveryFinishUsers.set(Array.isArray(data.users) ? data.users : []);
+    } catch {
+      this.toast.error('Impossible de charger la liste des utilisateurs');
+      this.editingDeliveryFinish.set(false);
+    } finally {
+      this.loadingDeliveryFinishUsers.set(false);
+    }
+  }
+
+  cancelDeliveryFinishForm(): void {
+    this.editingDeliveryFinish.set(false);
+    this.deliveryFinishUserId.set(null);
+    this.deliveryFinishDropdownOpen.set(false);
+    this.deliveryFinishUserSearch.set('');
+  }
+
+  selectDeliveryFinishUser(userId: number): void {
+    this.deliveryFinishUserId.set(userId);
+    this.deliveryFinishDropdownOpen.set(false);
+    this.deliveryFinishUserSearch.set('');
+  }
+
+  deliveryFinishUserDisplayName(u: CreateTaskUserRow): string {
+    return `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() || `Utilisateur #${u.id}`;
+  }
+
+  deliveryFinishSelectedLabel(): string {
+    const id = this.deliveryFinishUserId();
+    if (id == null) return 'Choisir...';
+    const u = this.deliveryFinishUsers().find((x) => x.id === id);
+    return u ? this.deliveryFinishUserDisplayName(u) : 'Choisir...';
+  }
+
+  deliveryFinishUserAvatarSrc(u: CreateTaskUserRow): string {
+    const name = this.deliveryFinishUserDisplayName(u);
+    if (u.image?.image_name?.trim()) {
+      return `/storage/${u.image.image_name}`;
+    }
+    return this.avatarFallback(name);
+  }
+
+  async confirmDeliveryFinish(): Promise<void> {
+    const row = this.details();
+    if (!row?.id || this.loadingProgressAction()) return;
+    const uid = this.deliveryFinishUserId();
+    if (uid == null) {
+      this.toast.info('Veuillez sélectionner la personne qui a reçu le paiement.');
+      return;
+    }
+    this.loadingProgressAction.set('finish_task');
+    try {
+      const resp = await firstValueFrom(this.api.finishTask(row.id, { received_by_user_id: uid }));
+      if (!resp?.success) throw new Error('progress_action_failed');
+      this.applyProgressActionResult(resp, 'finish_task');
+      this.editingDeliveryFinish.set(false);
+      this.deliveryFinishUserId.set(null);
+      this.deliveryFinishDropdownOpen.set(false);
+      this.activeTab.set('progress');
+      void this.store.refresh();
+      this.toast.success(resp.message || 'Tâche terminée');
+    } catch (e) {
+      const msg = this.extractApiErrorMessage(e) ?? "Impossible d'effectuer cette action.";
+      this.toast.error(msg);
+    } finally {
+      this.loadingProgressAction.set(null);
+    }
+  }
+
   async runProgressAction(
     action: 'start_route' | 'end_route' | 'start_visit' | 'pause_visit' | 'resume_visit' | 'finish_visit' | 'finish_task',
   ): Promise<void> {
@@ -870,6 +985,12 @@ export class TaskDetailsModalComponent {
     this.proposedServiceName.set('');
     this.editingServiceProposal.set(false);
     this.loadingProgressAction.set(null);
+    this.editingDeliveryFinish.set(false);
+    this.loadingDeliveryFinishUsers.set(false);
+    this.deliveryFinishUsers.set([]);
+    this.deliveryFinishUserId.set(null);
+    this.deliveryFinishDropdownOpen.set(false);
+    this.deliveryFinishUserSearch.set('');
     this.loading.set(true);
     this.error.set(null);
     this.details.set(null);

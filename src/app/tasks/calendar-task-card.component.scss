@@ -10,9 +10,43 @@
   flex-direction: column;
   align-items: stretch;
   border-radius: var(--app-radius-md);
-  border: var(--app-border-default) var(--app-border-tertiary);
+  border: var(--app-border-default) var(--cal-task-strip-color);
   background: var(--app-bg-primary);
   overflow: hidden;
+  cursor: pointer;
+  transition: background var(--app-transition-fast), box-shadow var(--app-transition-fast);
+}
+
+.cal-task-card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+}
+
+.cal-task-card.cal-month__task-card--attente:hover {
+  background: #fee2e2;
+}
+
+.cal-task-card.cal-month__task-card--cours:hover {
+  background: #fef9c3;
+}
+
+.cal-task-card.cal-month__task-card--route:hover {
+  background: #ffedd5;
+}
+
+.cal-task-card.cal-month__task-card--pause:hover {
+  background: #dcfce7;
+}
+
+.cal-task-card.cal-month__task-card--terminee:hover {
+  background: #dbeafe;
+}
+
+.cal-task-card.cal-month__task-card--annulee:hover {
+  background: #f3e8ff;
+}
+
+.cal-task-card.cal-month__task-card--default:hover {
+  background: var(--app-bg-hover);
 }
 
 /* Status accent — horizontal bar at top, inset from card border */
@@ -182,6 +216,30 @@
 }
 
 :host-context([data-theme='dark']) {
+  .cal-task-card.cal-month__task-card--attente:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  .cal-task-card.cal-month__task-card--cours:hover {
+    background: rgba(234, 179, 8, 0.22);
+  }
+
+  .cal-task-card.cal-month__task-card--route:hover {
+    background: rgba(249, 115, 22, 0.22);
+  }
+
+  .cal-task-card.cal-month__task-card--pause:hover {
+    background: rgba(34, 197, 94, 0.2);
+  }
+
+  .cal-task-card.cal-month__task-card--terminee:hover {
+    background: rgba(59, 130, 246, 0.22);
+  }
+
+  .cal-task-card.cal-month__task-card--annulee:hover {
+    background: rgba(168, 85, 247, 0.22);
+  }
+
   .cal-task-card__badge--paid {
     background: rgba(34, 197, 94, 0.12);
     color: #86efac;
